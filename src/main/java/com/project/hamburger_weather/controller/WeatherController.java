@@ -39,15 +39,13 @@ public class WeatherController {
     @GetMapping("/route")
     public void route() {
         Mono<RouteDto> res = routingService.getRoute("13.378668","52.516481","13.428554","52.523239");
-        res.flatMap(r -> {
-            System.out.println(r);
-            return Mono.empty();
-        });
+        res.subscribe(System.out::println);
     }
 
     @GetMapping("/geo")
     public void geo() {
         Mono<CoordinatesDto> res = geoConverterService.getCoordinates("Invalidenstraße", "116", "10115", "Berlin", "Germany");
-        System.out.println(res);
+        res.subscribe(dto -> 
+    System.out.println("Coords: lat=" + dto.lat() + ", lon=" + dto.lon()));
     }
 }

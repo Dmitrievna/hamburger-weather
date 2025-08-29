@@ -25,6 +25,7 @@ public class GeoConverterService {
                         .queryParam("q", "{street}+{num}+{PLZ}+{city}+{country}")
                         .build(street, num, plz, city, country))
                 .retrieve()
-                .bodyToMono(CoordinatesDto.class);
+                .bodyToFlux(CoordinatesDto.class)
+                .next();
     }
 }
