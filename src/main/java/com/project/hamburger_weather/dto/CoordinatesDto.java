@@ -1,3 +1,3 @@
 package com.project.hamburger_weather.dto;
 
-public record CoordinatesDto(double lat, double lon) {};
+public record CoordinatesDto(String lat, String lon) {};

@@ -6,6 +6,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.project.hamburger_weather.dto.CoordinatesDto;
 import com.project.hamburger_weather.dto.RouteDto;
+import com.project.hamburger_weather.dto.WeatherForecastDto;
+import com.project.hamburger_weather.dto.WeatherRawDto;
+import com.project.hamburger_weather.mapper.RawToWeatherDtoMapper;
 import com.project.hamburger_weather.service.GeoConverterService;
 import com.project.hamburger_weather.service.RoutingService;
 import com.project.hamburger_weather.service.WeatherService;
@@ -31,15 +34,31 @@ public class WeatherController {
         return "Hi weather!";
     }
 
-    @GetMapping("/test")
-    public Mono<String> test() {
-        return weatherService.getForecast();
+    @GetMapping("/weather")
+    public void test() {
+        Mono<WeatherRawDto> res = weatherService.getForecast("53.5814576", "10.0616873");
+
+        Mono<WeatherForecastDto> mapped = res.map(raw -> {
+            return RawToWeatherDtoMapper.convert(raw);
+        });
+
+        mapped.map(dto -> {
+            System.out.println("Coordinates: lat=" + dto.coordinates().lat() + ", lon=" + dto.coordinates().lon());
+            dto.hourlyForecast().forEach(hour -> {
+                System.out.println(hour.getAll());
+            });
+            return dto;
+        }).subscribe();
+    
     }
 
     @GetMapping("/route")
     public void route() {
         Mono<RouteDto> res = routingService.getRoute("13.378668","52.516481","13.428554","52.523239");
-        res.subscribe(System.out::println);
+        res.map(r -> {
+            r.coordinates().forEach(c -> System.out.println("Lon: " + c.lon() + ", Lat: " + c.lat()));
+            return r;
+        }).subscribe();
     }
 
     @GetMapping("/geo")
