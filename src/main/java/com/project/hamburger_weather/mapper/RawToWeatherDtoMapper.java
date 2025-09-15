@@ -30,7 +30,9 @@ public class RawToWeatherDtoMapper {
                 String temperature = rawSummary.get("temperature_2m").get(list.size()).asText();
                 String precipitationProbability = rawSummary.get("precipitation_probability").get(list.size()).asText();
                 String precipitation = rawSummary.get("precipitation").get(list.size()).asText();
-                list.add(new HourlyForecastDto(time, temperature, precipitationProbability, precipitation));
+                String windSpeed = rawSummary.get("wind_speed_10m").get(list.size()).asText();
+                String weatherCode = rawSummary.get("weather_code").get(list.size()).asText();
+                list.add(new HourlyForecastDto(time, temperature, precipitationProbability, precipitation, windSpeed, weatherCode));
             } catch (ParseException e) {
                 throw new MappingException("Invalid date format in hourly podcast: " + t.asText(), e);
             }

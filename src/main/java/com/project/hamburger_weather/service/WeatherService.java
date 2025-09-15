@@ -23,7 +23,7 @@ public class WeatherService {
                         .path("/forecast")
                         .queryParam("latitude", lon)
                         .queryParam("longitude", lat)
-                        .queryParam("hourly", "temperature_2m,precipitation_probability,precipitation")
+                        .queryParam("hourly", "temperature_2m,precipitation_probability,precipitation,wind_speed_10m,weather_code")
                         .queryParam("timezone", "Europe/Berlin")
                         .queryParam("forecast_days", "1")
                         .queryParam("forecast_hours", "3")

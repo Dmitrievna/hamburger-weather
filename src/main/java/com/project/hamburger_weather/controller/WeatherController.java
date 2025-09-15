@@ -4,15 +4,18 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.project.hamburger_weather.dto.AddressDto;
 import com.project.hamburger_weather.dto.CoordinatesDto;
 import com.project.hamburger_weather.dto.RouteDto;
 import com.project.hamburger_weather.dto.WeatherForecastDto;
 import com.project.hamburger_weather.dto.WeatherRawDto;
 import com.project.hamburger_weather.mapper.RawToWeatherDtoMapper;
+import com.project.hamburger_weather.service.AggregationService;
 import com.project.hamburger_weather.service.GeoConverterService;
 import com.project.hamburger_weather.service.RoutingService;
 import com.project.hamburger_weather.service.WeatherService;
 
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -22,11 +25,13 @@ public class WeatherController {
     private final WeatherService weatherService;
     private final RoutingService routingService;
     private final GeoConverterService geoConverterService;
+    private final AggregationService aggregationService;
 
-    public WeatherController(WeatherService weatherService, RoutingService routingService, GeoConverterService geoConverterService) {
+    public WeatherController(WeatherService weatherService, RoutingService routingService, GeoConverterService geoConverterService, AggregationService aggregationService) {
         this.weatherService = weatherService;
         this.routingService = routingService;
         this.geoConverterService = geoConverterService;
+        this.aggregationService = aggregationService;
     }
 
     @GetMapping("/forecast")
@@ -37,6 +42,11 @@ public class WeatherController {
     @GetMapping("/weather")
     public void test() {
         Mono<WeatherRawDto> res = weatherService.getForecast("53.5814576", "10.0616873");
+
+        // res.map(raw -> {
+        //     System.out.println("Raw weather data received: " + raw);
+        //     return raw;
+        // }).subscribe();
 
         Mono<WeatherForecastDto> mapped = res.map(raw -> {
             return RawToWeatherDtoMapper.convert(raw);
@@ -66,5 +76,22 @@ public class WeatherController {
         Mono<CoordinatesDto> res = geoConverterService.getCoordinates("Invalidenstraße", "116", "10115", "Berlin", "Germany");
         res.subscribe(dto -> 
     System.out.println("Coords: lat=" + dto.lat() + ", lon=" + dto.lon()));
+    }
+
+
+    @GetMapping("/alles")
+    public void alles() {
+        Flux<WeatherForecastDto> forecast = aggregationService.getTheAnswer(
+            new AddressDto("Beimoorstr", "18", "22081", "Hamburg", "Germany"),
+            new AddressDto("Conventstraße", "8-10", "22089", "Hamburg", "Germany")
+        );
+
+        forecast.subscribe(dto -> {
+            System.out.println("Coordinates: lat=" + dto.coordinates().lat() + ", lon=" + dto.coordinates().lon());
+            dto.hourlyForecast().forEach(hour -> {
+                System.out.println(hour.getAll());
+            });
+            System.out.println("-----");
+        });
     }
 }
