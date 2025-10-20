@@ -21,8 +21,8 @@ public class WeatherService {
         return weatherClient.get()
         .uri(uriBuilder -> uriBuilder
                         .path("/forecast")
-                        .queryParam("latitude", lon)
-                        .queryParam("longitude", lat)
+                        .queryParam("latitude", lat)
+                        .queryParam("longitude", lon)
                         .queryParam("hourly", "temperature_2m,precipitation_probability,precipitation,wind_speed_10m,weather_code")
                         .queryParam("timezone", "Europe/Berlin")
                         .queryParam("forecast_days", "1")

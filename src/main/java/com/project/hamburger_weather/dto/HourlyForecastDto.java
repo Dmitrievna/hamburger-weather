@@ -27,5 +27,31 @@ public class HourlyForecastDto {
         return "Hour: " + hour + ", Temp: " + temperature + ", PrecipProb: " + precipitationProbability + ", Precip: " + precipitation + ", WindSpeed: " + windSpeed + ", WeatherCode: " + weatherCode;
     }
 
+    public Double temperature() {
+        return Double.valueOf(temperature);
+    }
+
+    public Double precipitationProbability() {
+        return Double.valueOf(precipitationProbability);
+    }
+
+    public String weatherCode() {
+        return weatherCode;
+    }
+
+    public Date hour() {
+        return hour;
+    }   
+
+    public Double precipitation() {
+        return Double.valueOf(precipitation);
+    } 
+    
+    public Double windSpeed() {
+        return Double.valueOf(windSpeed);
+    }
+
+    
+
 
 }

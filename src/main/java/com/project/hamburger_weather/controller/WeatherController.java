@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.project.hamburger_weather.dto.AddressDto;
 import com.project.hamburger_weather.dto.CoordinatesDto;
+import com.project.hamburger_weather.dto.ReportDto;
 import com.project.hamburger_weather.dto.RouteDto;
 import com.project.hamburger_weather.dto.WeatherForecastDto;
 import com.project.hamburger_weather.dto.WeatherRawDto;
@@ -15,7 +16,6 @@ import com.project.hamburger_weather.service.GeoConverterService;
 import com.project.hamburger_weather.service.RoutingService;
 import com.project.hamburger_weather.service.WeatherService;
 
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -79,19 +79,21 @@ public class WeatherController {
     }
 
 
-    @GetMapping("/alles")
+    @GetMapping("/report")
     public void alles() {
-        Flux<WeatherForecastDto> forecast = aggregationService.getTheAnswer(
+        Mono<ReportDto> forecast = aggregationService.getTheAnswer(
             new AddressDto("Beimoorstr", "18", "22081", "Hamburg", "Germany"),
             new AddressDto("Conventstraße", "8-10", "22089", "Hamburg", "Germany")
         );
 
         forecast.subscribe(dto -> {
-            System.out.println("Coordinates: lat=" + dto.coordinates().lat() + ", lon=" + dto.coordinates().lon());
-            dto.hourlyForecast().forEach(hour -> {
-                System.out.println(hour.getAll());
-            });
-            System.out.println("-----");
+            System.out.println("Avg Temp: " + dto.avgTemperature());
+            System.out.println("Min Temp: " + dto.minTemperature());
+            System.out.println("Max Temp: " + dto.maxTemperature());
+            System.out.println("Avg Precip Prob: " + dto.avgPrecipitationProbability());
+            System.out.println("Rainy: " + dto.rainy());
+            System.out.println("Good Weather: " + dto.goodWeather());
+            System.out.println("Windy: " + dto.windy());
         });
     }
 }
