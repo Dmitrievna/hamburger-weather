@@ -82,7 +82,7 @@ public class WeatherController {
     @GetMapping("/report")
     public void alles() {
         Mono<ReportDto> forecast = aggregationService.getTheAnswer(
-            new AddressDto("Beimoorstr", "18", "22081", "Hamburg", "Germany"),
+            new AddressDto("Bramfelder Str", "18", "22305", "Hamburg", "Germany"),
             new AddressDto("Conventstraße", "8-10", "22089", "Hamburg", "Germany")
         );
 
