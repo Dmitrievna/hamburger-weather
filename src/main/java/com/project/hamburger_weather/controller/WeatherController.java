@@ -81,19 +81,25 @@ public class WeatherController {
 
     @GetMapping("/report")
     public void alles() {
+       
         Mono<ReportDto> forecast = aggregationService.getTheAnswer(
             new AddressDto("Bramfelder Str", "18", "22305", "Hamburg", "Germany"),
-            new AddressDto("Conventstraße", "8-10", "22089", "Hamburg", "Germany")
-        );
+            new AddressDto("Invalidenstraße", "116", "10115", "Berlin", "Germany")
+        ).cast(ReportDto.class);        
 
-        forecast.subscribe(dto -> {
-            System.out.println("Avg Temp: " + dto.avgTemperature());
-            System.out.println("Min Temp: " + dto.minTemperature());
-            System.out.println("Max Temp: " + dto.maxTemperature());
-            System.out.println("Avg Precip Prob: " + dto.avgPrecipitationProbability());
-            System.out.println("Rainy: " + dto.rainy());
-            System.out.println("Good Weather: " + dto.goodWeather());
-            System.out.println("Windy: " + dto.windy());
-        });
+        // forecast.subscribe(dto -> {
+        //     System.out.println("Avg Temp: " + dto.avgTemperature());
+        //     System.out.println("Min Temp: " + dto.minTemperature());
+        //     System.out.println("Max Temp: " + dto.maxTemperature());
+        //     System.out.println("Avg Precip Prob: " + dto.avgPrecipitationProbability());
+        //     System.out.println("Rainy: " + dto.rainy());
+        //     System.out.println("Good Weather: " + dto.goodWeather());
+        //     System.out.println("Windy: " + dto.windy());
+        // });
+
+        forecast.subscribe(x ->{
+        System.out.println(x);
+     });
+
     }
 }

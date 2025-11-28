@@ -1,6 +1,6 @@
 package com.project.hamburger_weather.dto;
 
-public record WeatherSummaryDto(
+public record ReportDto(
     double avgTemperature,
     double minTemperature,
     double maxTemperature,

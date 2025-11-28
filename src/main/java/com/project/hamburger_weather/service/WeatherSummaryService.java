@@ -48,9 +48,9 @@ public class WeatherSummaryService {
                 DoubleSummaryStatistics precipStats = tuple.getT1();
                 DoubleSummaryStatistics precipProbStats = tuple.getT2();
                 List<String> codes = tuple.getT3();
-                boolean rainByPrecip = precipStats.getMin() > 0.0;
-                boolean rainByProb = precipProbStats.getMin() > 30.0;
-                boolean rainByCode = codes.stream().anyMatch(code -> wmoCodesService.checkIfRain(code));
+                Boolean rainByPrecip = precipStats.getMin() > 0.0;
+                Boolean rainByProb = precipProbStats.getMin() > 30.0;
+                Boolean rainByCode = codes.stream().anyMatch(code -> wmoCodesService.checkIfRain(code));
                 return rainByPrecip || rainByProb || rainByCode;
             }); 
         
@@ -64,33 +64,34 @@ public class WeatherSummaryService {
         
         Mono<Boolean> goodWeatherMono = Mono.zip(rainy, windy, warm, weatherCodes)
         .map(tuple -> {
-            boolean rn = tuple.getT1();
-            boolean wnd = tuple.getT2();
-            boolean wrm = tuple.getT3();
+            Boolean rn = tuple.getT1();
+            Boolean wnd = tuple.getT2();
+            Boolean wrm = tuple.getT3();
             List<String> cds = tuple.getT4();
-            boolean goodByCodes = cds.stream().allMatch(code -> wmoCodesService.checkIfGood(code));
+            Boolean goodByCodes = cds.stream().allMatch(code -> wmoCodesService.checkIfGood(code));
             return wrm && !rn && !wnd && goodByCodes;
         });
 
-        Mono<ReportDto> reportMono = Mono.zip(temperatureStats, precipationProbStats, rainy, windy, goodWeatherMono)
-        .map(tuple -> {
-            DoubleSummaryStatistics tmp = tuple.getT1();
-            DoubleSummaryStatistics prcp = tuple.getT2();
-            boolean rn = tuple.getT3();
-            boolean wnd = tuple.getT4();
-            boolean goodW = tuple.getT5();
-            return new ReportDto(
+        return Mono.zip(temperatureStats, precipationProbStats, rainy, windy, goodWeatherMono)
+            .map(tuple -> {
+                
+                DoubleSummaryStatistics tmp = tuple.getT1(); 
+                DoubleSummaryStatistics prcp = tuple.getT2(); 
+                boolean rn = tuple.getT3(); 
+                boolean wnd = tuple.getT4(); 
+                boolean goodW = tuple.getT5();
+                
+                
+                return new ReportDto(
                 tmp.getAverage(),
                 tmp.getMin(),
                 tmp.getMax(),
                 prcp.getAverage(),
-                rn,
-                goodW,
-                wnd
+                 rn,
+                 goodW,
+                 wnd
             );
-        });
-        
-        return reportMono;
+        }).cast(ReportDto.class);
 }
 
 
