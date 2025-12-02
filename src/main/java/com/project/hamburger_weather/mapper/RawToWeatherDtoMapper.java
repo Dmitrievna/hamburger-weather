@@ -23,6 +23,7 @@ public class RawToWeatherDtoMapper {
     }
 
     public static List<HourlyForecastDto> convertJsonNoteToListOfWeatherForecastDto(JsonNode rawSummary) {
+        System.out.println("raw thing: " + rawSummary.toString());
         List<HourlyForecastDto> list = new ArrayList<>(); 
         rawSummary.get("time").forEach(t -> {
             try {
@@ -33,8 +34,8 @@ public class RawToWeatherDtoMapper {
                 String windSpeed = rawSummary.get("wind_speed_10m").get(list.size()).asText();
                 String weatherCode = rawSummary.get("weather_code").get(list.size()).asText();
                 list.add(new HourlyForecastDto(time, temperature, precipitationProbability, precipitation, windSpeed, weatherCode));
-            } catch (ParseException e) {
-                throw new MappingException("Invalid date format in hourly podcast: " + t.asText(), e);
+            } catch (ParseException | NumberFormatException e) {
+                throw new MappingException("Invalid date format in hourly podcast: " + rawSummary + "  "+ e);
             }
             });
         return list;

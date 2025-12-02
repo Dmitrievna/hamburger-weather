@@ -33,7 +33,7 @@ public class AggregationService {
     public Mono<ReportDto> getTheAnswer(AddressDto addressStart, AddressDto addressEnd) {
         // Implementation for aggregating data from different services
 
-        Mono<RouteDto> routeMono = buildRoute(addressStart, addressEnd);
+        Mono<RouteDto> routeMono = buildRoute(addressStart, addressEnd).cache();
 
         Mono<RouteDto> optimized = routeMono.map(route -> coordinatesOptimizationService.deduplicate(route.coordinates(), 3.0))
             .cache();
@@ -63,13 +63,12 @@ public class AggregationService {
     public Flux<WeatherForecastDto> getAllForecasts(Mono<RouteDto> monoRoute) {
         // validation on some level
         Flux<WeatherForecastDto> allCoordinates = monoRoute
-            .flatMapMany(route -> {
-                return Flux.fromIterable(route.coordinates());
-        })
-            .flatMap(point -> {
-                return weatherService.getForecast(point.lon(), point.lat())
-                    .map(raw -> RawToWeatherDtoMapper.convert(raw));
-        });
+            .flatMapMany(route -> 
+                Flux.fromIterable(route.coordinates()))
+            .delayElements(Duration.ofSeconds(1))
+            .flatMap(point -> 
+                weatherService.getForecast(point.lon(), point.lat())
+                .map(RawToWeatherDtoMapper::convert));
         
         return allCoordinates;
     }

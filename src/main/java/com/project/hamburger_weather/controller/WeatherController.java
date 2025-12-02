@@ -1,6 +1,8 @@
 package com.project.hamburger_weather.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -8,6 +10,7 @@ import com.project.hamburger_weather.dto.AddressDto;
 import com.project.hamburger_weather.dto.CoordinatesDto;
 import com.project.hamburger_weather.dto.ReportDto;
 import com.project.hamburger_weather.dto.RouteDto;
+import com.project.hamburger_weather.dto.RouteRequestDto;
 import com.project.hamburger_weather.dto.WeatherForecastDto;
 import com.project.hamburger_weather.dto.WeatherRawDto;
 import com.project.hamburger_weather.mapper.RawToWeatherDtoMapper;
@@ -17,6 +20,7 @@ import com.project.hamburger_weather.service.RoutingService;
 import com.project.hamburger_weather.service.WeatherService;
 
 import reactor.core.publisher.Mono;
+
 
 @RestController
 @RequestMapping("/weather")
@@ -32,11 +36,6 @@ public class WeatherController {
         this.routingService = routingService;
         this.geoConverterService = geoConverterService;
         this.aggregationService = aggregationService;
-    }
-
-    @GetMapping("/forecast")
-    public String forecast() {
-        return "Hi weather!";
     }
 
     @GetMapping("/weather")
@@ -101,5 +100,12 @@ public class WeatherController {
         System.out.println(x);
      });
 
+    }
+
+    @PostMapping("/forecast")
+        public Mono<ReportDto> getForecastReport(
+            @RequestBody RouteRequestDto req
+        ) {
+            return aggregationService.getTheAnswer(req.start(), req.end());
     }
 }
