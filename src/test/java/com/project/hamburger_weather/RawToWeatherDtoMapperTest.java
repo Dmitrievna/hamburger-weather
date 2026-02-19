@@ -10,9 +10,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.project.hamburger_weather.dto.HourlyForecastDto;
-import com.project.hamburger_weather.mapper.RawToWeatherDtoMapper;
+//import com.project.hamburger_weather.dto.HourlyDtoUnits;
+//import com.project.hamburger_weather.service.mapper.RawToWeatherDtoMapper;
 
+/* 
 
 @ExtendWith(MockitoExtension.class)
 public class RawToWeatherDtoMapperTest {
@@ -20,13 +21,10 @@ public class RawToWeatherDtoMapperTest {
     @InjectMocks
     private RawToWeatherDtoMapper mapper;
 
-
-
-
     @Test
     void shouldMapTimeCorrectly() {
         ObjectMapper objectMapper = new ObjectMapper();
-        List<HourlyForecastDto> res;
+        List<HourlyDtoUnits> res;
 
         try {
 
@@ -37,8 +35,7 @@ public class RawToWeatherDtoMapperTest {
             return;
         }
 
-    
-
     }
-    
+
 }
+*/

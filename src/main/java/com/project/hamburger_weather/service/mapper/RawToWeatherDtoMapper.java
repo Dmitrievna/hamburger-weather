@@ -1,20 +1,21 @@
-package com.project.hamburger_weather.mapper;
+package com.project.hamburger_weather.service.mapper;
 
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
+/*
 import com.fasterxml.jackson.databind.JsonNode;
 import com.project.hamburger_weather.dto.CoordinatesDto;
-import com.project.hamburger_weather.dto.HourlyForecastDto;
+import com.project.hamburger_weather.dto.HourlyDtoUnits;
 import com.project.hamburger_weather.dto.WeatherForecastDto;
-import com.project.hamburger_weather.dto.WeatherRawDto;
+import com.project.hamburger_weather.dto.WeatherServiceDto;
 import com.project.hamburger_weather.exception.MappingException;
 
 
 
 public class RawToWeatherDtoMapper {
-    public static WeatherForecastDto convert(WeatherRawDto raw) {
+    public static WeatherForecastDto convert(WeatherServiceDto raw) {
         return new WeatherForecastDto(
             new CoordinatesDto(raw.latitude(),
             raw.longitude()),
@@ -22,9 +23,9 @@ public class RawToWeatherDtoMapper {
         );
     }
 
-    public static List<HourlyForecastDto> convertJsonNoteToListOfWeatherForecastDto(JsonNode rawSummary) {
+    public static List<HourlyDtoUnits> convertJsonNoteToListOfWeatherForecastDto(JsonNode rawSummary) {
         System.out.println("raw thing: " + rawSummary.toString());
-        List<HourlyForecastDto> list = new ArrayList<>(); 
+        List<HourlyDtoUnits> list = new ArrayList<>(); 
         rawSummary.get("time").forEach(t -> {
             try {
                 String time = t.asText();
@@ -33,7 +34,7 @@ public class RawToWeatherDtoMapper {
                 String precipitation = rawSummary.get("precipitation").get(list.size()).asText();
                 String windSpeed = rawSummary.get("wind_speed_10m").get(list.size()).asText();
                 String weatherCode = rawSummary.get("weather_code").get(list.size()).asText();
-                list.add(new HourlyForecastDto(time, temperature, precipitationProbability, precipitation, windSpeed, weatherCode));
+                list.add(new HourlyDtoUnits(time, temperature, precipitationProbability, precipitation, windSpeed, weatherCode));
             } catch (ParseException | NumberFormatException e) {
                 throw new MappingException("Invalid date format in hourly podcast: " + rawSummary + "  "+ e);
             }
@@ -41,3 +42,4 @@ public class RawToWeatherDtoMapper {
         return list;
     }
 }
+ */

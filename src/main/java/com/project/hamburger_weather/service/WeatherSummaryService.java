@@ -7,16 +7,11 @@ import java.util.function.Function;
 
 import org.springframework.stereotype.Service;
 
-import com.project.hamburger_weather.dto.HourlyForecastDto;
-import com.project.hamburger_weather.dto.ReportDto;
-import com.project.hamburger_weather.dto.WeatherForecastDto;
-
+//import com.project.hamburger_weather.dto.HourlyDtoUnits;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-
-
-
+/*
 
 @Service
 public class WeatherSummaryService {
@@ -30,10 +25,10 @@ public class WeatherSummaryService {
 
         Mono<List<WeatherForecastDto>> forecastToList = forecastList.collectList();
 
-        Mono<DoubleSummaryStatistics> temperatureStats = forecastToList.map(list -> summarize(list, HourlyForecastDto::temperature));
-        Mono<DoubleSummaryStatistics> precipationStats = forecastToList.map(list -> summarize(list, HourlyForecastDto::precipitation));
-        Mono<DoubleSummaryStatistics> precipationProbStats = forecastToList.map(list -> summarize(list, HourlyForecastDto::precipitationProbability));
-        Mono<DoubleSummaryStatistics> windSpeedStats = forecastToList.map(list -> summarize(list, HourlyForecastDto::windSpeed));
+        Mono<DoubleSummaryStatistics> temperatureStats = forecastToList.map(list -> summarize(list, HourlyDtoUnits::temperature));
+        Mono<DoubleSummaryStatistics> precipationStats = forecastToList.map(list -> summarize(list, HourlyDtoUnits::precipitation));
+        Mono<DoubleSummaryStatistics> precipationProbStats = forecastToList.map(list -> summarize(list, HourlyDtoUnits::precipitationProbability));
+        Mono<DoubleSummaryStatistics> windSpeedStats = forecastToList.map(list -> summarize(list, HourlyDtoUnits::windSpeed));
         Mono<List<String>> weatherCodes = forecastToList.map(list -> {
             List<String> codes = new ArrayList<>();
             list.forEach(item -> {
@@ -98,7 +93,7 @@ public class WeatherSummaryService {
 
 private DoubleSummaryStatistics summarize(
     List<WeatherForecastDto> list,
-    Function<HourlyForecastDto, Double> valueExtractor
+    Function<HourlyDtoUnits, Double> valueExtractor
 ) {
     DoubleSummaryStatistics stats = new DoubleSummaryStatistics();
     list.forEach(item ->
@@ -110,3 +105,6 @@ private DoubleSummaryStatistics summarize(
 }
 
 }
+
+
+ */
