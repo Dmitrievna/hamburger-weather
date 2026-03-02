@@ -1,13 +1,13 @@
 package com.project.hamburger_weather.infra.api;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.project.hamburger_weather.domain.model.Coordinate;
-import com.project.hamburger_weather.dto.RoutingServiceDto;
+import com.project.hamburger_weather.domain.model.Route;
+import com.project.hamburger_weather.infra.api.mapper.RoutingServiceMapper;
+import com.project.hamburger_weather.presentation.dto.RoutingServiceDto;
 
 import reactor.core.publisher.Mono;
 
@@ -15,21 +15,23 @@ import reactor.core.publisher.Mono;
 public class RoutingService {
 
     private final WebClient routeClient;
+    private final RoutingServiceMapper mapper;
 
-    public RoutingService(@Qualifier("routeClient") WebClient routeClient) {
+    public RoutingService(@Qualifier("routeClient") WebClient routeClient, RoutingServiceMapper mapper) {
         this.routeClient = routeClient;
+        this.mapper = mapper;
     }
 
-    public Mono<List<Coordinate>> getRoute(double startLon, double startLat, double endLon, double endLat) {
+    public Mono<Route> getRoute(Coordinate from, Coordinate to) {
         return routeClient.get()
                 .uri(uriBuilder -> uriBuilder
                 .path("/driving/{startLon},{startLat};{endLon},{endLat}")
                 .queryParam("overview", "full")
                 .queryParam("geometries", "geojson")
-                .build(startLon, startLat, endLon, endLat))
+                .build(from.longitude(), from.latitude(), to.longitude(), to.latitude()))
                 .retrieve()
                 .bodyToMono(RoutingServiceDto.class)
-                .map(dto -> dto.coordinates());
+                .map(mapper::toRoute);
     }
 
 }

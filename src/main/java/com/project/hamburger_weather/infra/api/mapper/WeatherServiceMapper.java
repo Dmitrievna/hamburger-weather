@@ -1,15 +1,16 @@
 package com.project.hamburger_weather.infra.api.mapper;
 
-import org.springframework.stereotype.Component;
-import com.project.hamburger_weather.domain.model.Coordinate;
-import com.project.hamburger_weather.dto.WeatherServiceDto;
-import com.project.hamburger_weather.domain.model.LocationForecast;
-import java.util.List;
-import com.project.hamburger_weather.domain.model.HourlyForecast;
-import com.project.hamburger_weather.dto.HourlyDto;
 import java.time.LocalDateTime;
-
 import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.stereotype.Component;
+
+import com.project.hamburger_weather.domain.model.Coordinate;
+import com.project.hamburger_weather.domain.model.HourlyForecast;
+import com.project.hamburger_weather.domain.model.LocationForecast;
+import com.project.hamburger_weather.presentation.dto.HourlyDto;
+import com.project.hamburger_weather.presentation.dto.WeatherServiceDto;
 
 @Component
 public class WeatherServiceMapper {

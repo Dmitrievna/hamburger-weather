@@ -8,9 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.project.hamburger_weather.dto.ErrorResponse;
-
-
+import com.project.hamburger_weather.presentation.dto.ErrorResponse;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {

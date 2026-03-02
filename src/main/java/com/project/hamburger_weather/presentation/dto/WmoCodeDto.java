@@ -1,4 +1,4 @@
-package com.project.hamburger_weather.dto;
+package com.project.hamburger_weather.presentation.dto;
 
 public record WmoCodeDto(String code, String description) {
 
