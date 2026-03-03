@@ -1,4 +1,4 @@
-package com.project.hamburger_weather.domain.util;
+package com.project.hamburger_weather.infra.support;
 
 import java.util.ArrayList;
 import java.util.List;

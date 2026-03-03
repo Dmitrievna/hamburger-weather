@@ -1,6 +1,6 @@
-package com.project.hamburger_weather.presentation.dto;
+package com.project.hamburger_weather.domain.model;
 
-public record ReportDto(
+public record ForecastReport(
         double avgTemperature,
         double minTemperature,
         double maxTemperature,

@@ -1,4 +1,4 @@
-package com.project.hamburger_weather.service;
+package com.project.hamburger_weather.domain.service;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,7 +10,8 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.project.hamburger_weather.presentation.dto.WmoCodeDto;
+
+import com.project.hamburger_weather.domain.model.WmoCode;
 
 import jakarta.annotation.PostConstruct;
 
@@ -19,7 +20,7 @@ public class WmoCodesEvaluationService {
 
     private final ObjectMapper objectMapper;
     private final ResourceLoader resourceLoader;
-    private List<WmoCodeDto> wmoCodes;
+    private List<WmoCode> wmoCodes;
 
     public WmoCodesEvaluationService(ResourceLoader resourceLoader, ObjectMapper objectMapper) throws IOException {
         this.resourceLoader = resourceLoader;
@@ -31,7 +32,7 @@ public class WmoCodesEvaluationService {
     private void loadWmoCodes() throws IOException {
         Resource resource = resourceLoader.getResource("classpath:static/wmo-codes.json");
         try (InputStream inputStream = resource.getInputStream()) {
-            this.wmoCodes = objectMapper.readValue(inputStream, new TypeReference<List<WmoCodeDto>>() {
+            this.wmoCodes = objectMapper.readValue(inputStream, new TypeReference<List<WmoCode>>() {
             });
         }
 
@@ -56,7 +57,7 @@ public class WmoCodesEvaluationService {
         return rainOnes.contains(code);
     }
 
-    public List<WmoCodeDto> getWmoCodes() {
+    public List<WmoCode> getWmoCodes() {
         return wmoCodes;
     }
 
@@ -64,7 +65,7 @@ public class WmoCodesEvaluationService {
         return wmoCodes.stream()
                 .filter(wmo -> wmo.code().equals(code))
                 .findFirst()
-                .map(WmoCodeDto::description)
+                .map(WmoCode::description)
                 .orElse("Unknown code");
     }
 
