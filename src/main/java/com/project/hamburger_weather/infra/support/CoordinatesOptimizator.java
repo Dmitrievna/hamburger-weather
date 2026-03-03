@@ -11,7 +11,7 @@ import com.project.hamburger_weather.domain.model.Route;
 @Component
 public class CoordinatesOptimizator {
 
-    private static final double DEFAULT_THRESHOLD_KM = 3.0; // Default threshold of 500 meters
+    private static final double DEFAULT_THRESHOLD_KM = 1.0; // Default threshold of 1 km
 
     public CoordinatesOptimizator() {
     }
@@ -22,14 +22,23 @@ public class CoordinatesOptimizator {
 
     private Route deduplicate(Route route, double thresholdKm) {
         List<Coordinate> optimizedRoute = new ArrayList<>();
-        for (Coordinate coord : route.coordinates()) {
+        // always include the first and the last coordinate i.e. starting and finishing routing point
+        optimizedRoute.add(route.coordinates().get(0));
+        for (int i = 1; i < route.coordinates().size() - 1; i++) {
+
+            Coordinate coord = route.coordinates().get(i);
+
             if (optimizedRoute.stream().noneMatch(
                     c -> distanceInKm(c.latitude(), c.longitude(), coord.latitude(), coord.longitude()) < thresholdKm
             )) {
-                optimizedRoute.add(coord);
+                if (!optimizedRoute.contains(coord)) {
+                    optimizedRoute.add(coord);
+                }
+
             }
         }
 
+        optimizedRoute.add(route.coordinates().get(route.coordinates().size() - 1));
         return new Route(optimizedRoute);
     }
 

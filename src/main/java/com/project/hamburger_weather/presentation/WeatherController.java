@@ -9,14 +9,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.project.hamburger_weather.application.RouteAndWeatherService;
 import com.project.hamburger_weather.domain.model.Address;
 import com.project.hamburger_weather.domain.model.Coordinate;
-import com.project.hamburger_weather.domain.model.ForecastReport;
 import com.project.hamburger_weather.domain.model.Route;
 import com.project.hamburger_weather.infra.api.GeoConverterService;
 import com.project.hamburger_weather.infra.api.RoutingService;
 import com.project.hamburger_weather.presentation.dto.ForecastRequestDto;
 import com.project.hamburger_weather.presentation.dto.ForecastResponseDto;
 import com.project.hamburger_weather.presentation.mapper.WeatherReportMapper;
-import com.project.hamburger_weather.domain.model.RouteForecastResult;
 
 import reactor.core.publisher.Mono;
 
