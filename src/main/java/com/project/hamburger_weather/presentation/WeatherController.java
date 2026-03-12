@@ -34,7 +34,7 @@ public class WeatherController {
         this.weatherReportMapper = weatherReportMapper;
     }
 
-    @PostMapping("/requestForecast")
+    @PostMapping("/forecast-based-on-route")
     public Mono<ForecastResponseDto> requestRouteAndWeather(@RequestBody ForecastRequestDto request) {
         Address from = new Address(request.start().street(), request.start().num(), request.start().plz(),
                 request.start().city(), request.start().country());
@@ -45,20 +45,6 @@ public class WeatherController {
                 .map(r -> weatherReportMapper.toForecastResponseDto(r.forecast(), r.route()));
 
         return response;
-    }
-
-    @PostMapping("/testCoordinates")
-    public Mono<Coordinate> testCoordinates(@RequestBody Address address) {
-        Mono<Coordinate> res = geoConverterService.getCoordinate(address);
-        return res;
-    }
-
-    @GetMapping("/testRoute")
-    public Mono<Route> testCoordinates() {
-        Coordinate from = new Coordinate(13.388860, 52.517037);
-        Coordinate to = new Coordinate(13.428555, 52.523219);
-        Mono<Route> res = routingService.getRoute(from, to);
-        return res;
     }
 
 }

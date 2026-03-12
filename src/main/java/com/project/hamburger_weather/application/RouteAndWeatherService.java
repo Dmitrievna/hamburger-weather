@@ -11,7 +11,6 @@ import com.project.hamburger_weather.domain.model.Route;
 import com.project.hamburger_weather.infra.api.GeoConverterService;
 import com.project.hamburger_weather.infra.api.RoutingService;
 import com.project.hamburger_weather.infra.api.WeatherService;
-import com.project.hamburger_weather.domain.model.ForecastReport;
 import com.project.hamburger_weather.domain.service.WeatherAnalysisService;
 import com.project.hamburger_weather.infra.support.CoordinatesOptimizator;
 import com.project.hamburger_weather.domain.model.RouteForecastResult;
