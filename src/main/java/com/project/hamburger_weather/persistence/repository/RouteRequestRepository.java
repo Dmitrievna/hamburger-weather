@@ -1,14 +1,15 @@
 package com.project.hamburger_weather.persistence.repository;
 
-import com.project.hamburger_weather.persistence.entity.RouteRequestEntity;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 
 import org.springframework.stereotype.Repository;
-import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import com.project.hamburger_weather.persistence.entity.RouteEntity;
 
 @Repository
 public interface RouteRequestRepository
-        extends ReactiveCrudRepository<RouteRequestEntity, Long> {
+        extends ReactiveCrudRepository<RouteEntity, Long> {
 
-    Flux<RouteRequestEntity> findByTag(String tag);
+    Mono<RouteEntity> findByTag(String tag);
+
 }
