@@ -18,14 +18,14 @@ public class SavedRouteMapper {
                 new Address(
                         entity.getStartStreet(),
                         entity.getStartHouseNumber(),
-                        entity.getStartPostalCode(),
+                        entity.getStartPlz(),
                         entity.getStartCity(),
                         entity.getStartCountry()
                 ),
                 new Address(
                         entity.getEndStreet(),
                         entity.getEndHouseNumber(),
-                        entity.getEndPostalCode(),
+                        entity.getEndPlz(),
                         entity.getEndCity(),
                         entity.getEndCountry()
                 ),

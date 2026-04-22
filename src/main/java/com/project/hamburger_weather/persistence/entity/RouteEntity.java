@@ -15,14 +15,14 @@ public class RouteEntity {
     // start address 
     private String startStreet;
     private String startHouseNumber;
-    private String startPostalCode;
+    private String startPlz;
     private String startCity;
     private String startCountry;
 
     // end address 
     private String endStreet;
     private String endHouseNumber;
-    private String endPostalCode;
+    private String endPlz;
     private String endCity;
     private String endCountry;
 
@@ -40,12 +40,12 @@ public class RouteEntity {
         this.tag = tag;
         this.startStreet = startStreet;
         this.startHouseNumber = startHouseNumber;
-        this.startPostalCode = startPostalCode;
+        this.startPlz = startPostalCode;
         this.startCity = startCity;
         this.startCountry = startCountry;
         this.endStreet = endStreet;
         this.endHouseNumber = endHouseNumber;
-        this.endPostalCode = endPostalCode;
+        this.endPlz = endPostalCode;
         this.endCity = endCity;
         this.endCountry = endCountry;
         this.coordinates = coordinates;
@@ -68,8 +68,8 @@ public class RouteEntity {
         return startHouseNumber;
     }
 
-    public String getStartPostalCode() {
-        return startPostalCode;
+    public String getStartPlz() {
+        return startPlz;
     }
 
     public String getStartCity() {
@@ -88,8 +88,8 @@ public class RouteEntity {
         return endHouseNumber;
     }
 
-    public String getEndPostalCode() {
-        return endPostalCode;
+    public String getEndPlz() {
+        return endPlz;
     }
 
     public String getEndCity() {
@@ -124,8 +124,8 @@ public class RouteEntity {
         this.startHouseNumber = startHouseNumber;
     }
 
-    public void setStartPostalCode(String startPostalCode) {
-        this.startPostalCode = startPostalCode;
+    public void setStartPlz(String startPlz) {
+        this.startPlz = startPlz;
     }
 
     public void setStartCity(String startCity) {
@@ -144,8 +144,8 @@ public class RouteEntity {
         this.endHouseNumber = endHouseNumber;
     }
 
-    public void setEndPostalCode(String endPostalCode) {
-        this.endPostalCode = endPostalCode;
+    public void setEndPlz(String endPlz) {
+        this.endPlz = endPlz;
     }
 
     public void setEndCity(String endCity) {
