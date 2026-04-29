@@ -27,19 +27,22 @@ public class RouteAndWeatherService {
     private final GeoConverterService geoConverterService;
     private final CoordinatesOptimizator coordinatesOptimizator;
     private final WeatherAnalysisService weatherAnalysisService;
+    private final SavedRouteService savedRouteService;
 
     public RouteAndWeatherService(WeatherService weatherService, RoutingService routingService,
-            GeoConverterService geoConverterService, CoordinatesOptimizator coordinatesOptimizator, WeatherAnalysisService weatherAnalysisService) {
+            GeoConverterService geoConverterService, CoordinatesOptimizator coordinatesOptimizator, WeatherAnalysisService weatherAnalysisService, SavedRouteService savedRouteService) {
         this.weatherService = weatherService;
         this.routingService = routingService;
         this.geoConverterService = geoConverterService;
         this.coordinatesOptimizator = coordinatesOptimizator;
         this.weatherAnalysisService = weatherAnalysisService;
+        this.savedRouteService = savedRouteService;
     }
 
     // maybe rename both class and method
     public Mono<RouteForecastResult> getRouteForecastResultForGivenStartAndFinish(Address from, Address to) {
 
+        // first check if there is a saved route for the given addresses, if not calculate a new one and then save
         // convert to coordinates
         Mono<Coordinate> fromCoordinate = geoConverterService.getCoordinate(from);
         Mono<Coordinate> toCoordinate = geoConverterService.getCoordinate(to);
@@ -64,5 +67,21 @@ public class RouteAndWeatherService {
         ));
 
         return result;
+    }
+
+    public Mono<RouteForecastResult> getRouteForecastResultForGivenTag(String tag) {
+        return savedRouteService.getRouteByTag(tag)
+                .flatMap(savedRoute -> {
+                    Route route = savedRoute.route();
+                    Mono<List<LocationForecast>> routeForecast
+                            = Flux.fromIterable(route.coordinates())
+                                    .flatMap(coord -> weatherService.getForecast(coord))
+                                    .collectList();
+
+                    return routeForecast.map(forecasts -> new RouteForecastResult(
+                            route,
+                            weatherAnalysisService.summarizeToReport(forecasts)
+                    ));
+                });
     }
 }

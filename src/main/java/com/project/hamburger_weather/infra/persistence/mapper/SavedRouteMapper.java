@@ -34,6 +34,26 @@ public class SavedRouteMapper {
         );
     }
 
+    public RouteEntity toEntity(Address start, Address end, Route route, String tag) {
+        return new RouteEntity(
+                tag,
+                start.street(),
+                start.houseNumber(),
+                start.plz(),
+                start.city(),
+                start.country(),
+                end.street(),
+                end.houseNumber(),
+                end.plz(),
+                end.city(),
+                end.country(),
+                new Gson().toJson(route.coordinates()),
+                null
+        );
+    }
+
+
+
     private Route parseCoordinates(String coordinatesJson) {
 
         Coordinate[] coordinates = new Gson().fromJson(coordinatesJson, Coordinate[].class);

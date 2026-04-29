@@ -13,6 +13,10 @@ import com.project.hamburger_weather.domain.model.Address;
 public interface RouteRequestRepository
         extends ReactiveCrudRepository<RouteEntity, Long> {
 
+    Mono<Boolean> existsByTag(String tag);
+
+    Mono<Boolean> existsByAddresses(Address start, Address end);
+
     Mono<RouteEntity> findByTag(String tag);
 
     Mono<RouteEntity> findByAddresses(Address start, Address end);
