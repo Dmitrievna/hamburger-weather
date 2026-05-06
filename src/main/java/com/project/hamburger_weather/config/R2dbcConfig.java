@@ -9,15 +9,5 @@ import java.util.List;
 
 @Configuration
 @EnableR2dbcRepositories
-public class R2dbcConfig extends AbstractR2dbcConfiguration {
-
-    @Override
-    public ConnectionFactory connectionFactory() {
-        return ConnectionFactories.get("r2dbc:postgresql://localhost:5432/hamburger-weather");
-    }
-
-    @Override
-    protected List<Object> getCustomConverters() {
-        return List.of();
-    }
+public class R2dbcConfig {
 }

@@ -1,4 +1,4 @@
-package com.project.hamburger_weather.persistence.entity;
+package com.project.hamburger_weather.infra.persistence.entity;
 
 public class AddressEntity {
 

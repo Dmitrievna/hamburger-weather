@@ -3,8 +3,8 @@ package com.project.hamburger_weather.application;
 import org.springframework.stereotype.Service;
 import com.project.hamburger_weather.domain.model.Address;
 import com.project.hamburger_weather.domain.model.SavedRoute;
-import com.project.hamburger_weather.persistence.repository.RouteRequestRepository;
-import com.project.hamburger_weather.persistence.mapper.SavedRouteMapper;
+import com.project.hamburger_weather.infra.persistence.repository.RouteRequestRepository;
+import com.project.hamburger_weather.infra.persistence.mapper.SavedRouteMapper;
 import reactor.core.publisher.Mono;
 import com.project.hamburger_weather.exception.RouteNotFoundException;
 import com.project.hamburger_weather.exception.TagNotFoundException;
@@ -20,14 +20,14 @@ public class SavedRouteService {
         this.mapper = mapper;
     }
 
-    public Mono<SavedRoute> getRouteByAddress(Address start, Address end) {
-        return routeRequestRepository.existsByAddresses(start, end)
+    public Mono<SavedRoute> getRouteByAddress(Address from, Address to) {
+        return routeRequestRepository.existsByAddresses(from.street(), from.city(), from.country(), to.street(), to.city(), to.country())
                 .flatMap(exists -> {
                     if (exists) {
-                        return routeRequestRepository.findByAddresses(start, end)
+                        return routeRequestRepository.findByAddresses(from.street(), from.city(), from.country(), to.street(), to.city(), to.country())
                                 .map(mapper::toDomain);
                     } else {
-                        return Mono.error(new RouteNotFoundException("Route from " + start + " to " + end + " not found"));
+                        return Mono.error(new RouteNotFoundException("Route from " + from + " to " + to + " not found"));
                     }
                 });
 

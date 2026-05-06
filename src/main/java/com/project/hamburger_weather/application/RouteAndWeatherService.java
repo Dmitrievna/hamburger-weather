@@ -14,6 +14,9 @@ import com.project.hamburger_weather.infra.api.WeatherService;
 import com.project.hamburger_weather.domain.service.WeatherAnalysisService;
 import com.project.hamburger_weather.infra.support.CoordinatesOptimizator;
 import com.project.hamburger_weather.domain.model.RouteForecastResult;
+import com.project.hamburger_weather.infra.persistence.mapper.SavedRouteMapper;
+import com.project.hamburger_weather.infra.persistence.repository.RouteRequestRepository;
+import com.project.hamburger_weather.infra.persistence.entity.RouteEntity;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -28,31 +31,51 @@ public class RouteAndWeatherService {
     private final CoordinatesOptimizator coordinatesOptimizator;
     private final WeatherAnalysisService weatherAnalysisService;
     private final SavedRouteService savedRouteService;
+    private final RouteRequestRepository routeRequestRepository;
+    private final SavedRouteMapper savedRouteMapper;
 
     public RouteAndWeatherService(WeatherService weatherService, RoutingService routingService,
-            GeoConverterService geoConverterService, CoordinatesOptimizator coordinatesOptimizator, WeatherAnalysisService weatherAnalysisService, SavedRouteService savedRouteService) {
+            GeoConverterService geoConverterService, CoordinatesOptimizator coordinatesOptimizator, WeatherAnalysisService weatherAnalysisService, SavedRouteService savedRouteService, RouteRequestRepository routeRequestRepository, SavedRouteMapper savedRouteMapper) {
         this.weatherService = weatherService;
         this.routingService = routingService;
         this.geoConverterService = geoConverterService;
         this.coordinatesOptimizator = coordinatesOptimizator;
         this.weatherAnalysisService = weatherAnalysisService;
         this.savedRouteService = savedRouteService;
+        this.routeRequestRepository = routeRequestRepository;
+        this.savedRouteMapper = savedRouteMapper;
     }
 
     // maybe rename both class and method
     public Mono<RouteForecastResult> getRouteForecastResultForGivenStartAndFinish(Address from, Address to) {
 
-        // first check if there is a saved route for the given addresses, if not calculate a new one and then save
         // convert to coordinates
+        // maybe potentially cash the coordinates for the addresses to avoid calling the geo service multiple times for the same address
         Mono<Coordinate> fromCoordinate = geoConverterService.getCoordinate(from);
         Mono<Coordinate> toCoordinate = geoConverterService.getCoordinate(to);
 
-        // calculate the route and optimize the coordinates list
-        Mono<Route> route
-                = Mono.zip(fromCoordinate, toCoordinate)
-                        .flatMap(tuple -> routingService.getRoute(tuple.getT1(), tuple.getT2()))
-                        .map(r -> coordinatesOptimizator.deduplicate(r));
+        // first check if there is a saved route for the given addresses, if not calculate a new one and then save
+        Mono<Boolean> routeExists = routeRequestRepository.existsByAddresses(from.street(), from.city(), from.country(), to.street(), to.city(), to.country());
 
+        Mono<Route> route = routeExists
+                .flatMap(exists -> {
+                    if (exists) {
+                        return routeRequestRepository.findByAddresses(from.street(), from.city(), from.country(), to.street(), to.city(), to.country())
+                                .map(savedRouteMapper::toDomain)
+                                .map(savedRoute -> savedRoute.route());
+                    } else {
+                        return Mono.zip(fromCoordinate, toCoordinate)
+                                .flatMap(tuple -> routingService.getRoute(tuple.getT1(), tuple.getT2()))
+                                .flatMap(r -> {
+                                    Route deduplicated = coordinatesOptimizator.deduplicate(r);
+                                    RouteEntity entity = savedRouteMapper.toEntity("Test Tag 1", from, to, deduplicated);
+                                    System.out.println("Entity to save: " + entity);  // ← add this
+                                    return routeRequestRepository
+                                            .save(entity)
+                                            .thenReturn(deduplicated);
+                                });
+                    }
+                });
         // get weather predictions for a given coordinates
         Mono<List<LocationForecast>> routeForecast
                 = route.flatMap(c -> Flux.fromIterable(c.coordinates())

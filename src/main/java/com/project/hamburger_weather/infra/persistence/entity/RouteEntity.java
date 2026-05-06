@@ -1,9 +1,20 @@
-package com.project.hamburger_weather.persistence.entity;
+package com.project.hamburger_weather.infra.persistence.entity;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
+
 import java.time.LocalDateTime;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+
+import lombok.Data;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Table("route_requests")
 public class RouteEntity {
 
@@ -30,138 +41,4 @@ public class RouteEntity {
     private String coordinates;
 
     private LocalDateTime requestedAt;
-
-    public RouteEntity() {
-    }
-
-    public RouteEntity(String tag, String startStreet, String startHouseNumber, String startPostalCode, String startCity, String startCountry,
-            String endStreet, String endHouseNumber, String endPostalCode, String endCity, String endCountry,
-            String coordinates, LocalDateTime requestedAt) {
-        this.tag = tag;
-        this.startStreet = startStreet;
-        this.startHouseNumber = startHouseNumber;
-        this.startPlz = startPostalCode;
-        this.startCity = startCity;
-        this.startCountry = startCountry;
-        this.endStreet = endStreet;
-        this.endHouseNumber = endHouseNumber;
-        this.endPlz = endPostalCode;
-        this.endCity = endCity;
-        this.endCountry = endCountry;
-        this.coordinates = coordinates;
-        this.requestedAt = requestedAt;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getTag() {
-        return tag;
-    }
-
-    public String getStartStreet() {
-        return startStreet;
-    }
-
-    public String getStartHouseNumber() {
-        return startHouseNumber;
-    }
-
-    public String getStartPlz() {
-        return startPlz;
-    }
-
-    public String getStartCity() {
-        return startCity;
-    }
-
-    public String getStartCountry() {
-        return startCountry;
-    }
-
-    public String getEndStreet() {
-        return endStreet;
-    }
-
-    public String getEndHouseNumber() {
-        return endHouseNumber;
-    }
-
-    public String getEndPlz() {
-        return endPlz;
-    }
-
-    public String getEndCity() {
-        return endCity;
-    }
-
-    public String getEndCountry() {
-        return endCountry;
-    }
-
-    public String getCoordinates() {
-        return coordinates;
-    }
-
-    public LocalDateTime getRequestedAt() {
-        return requestedAt;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setTag(String tag) {
-        this.tag = tag;
-    }
-
-    public void setStartStreet(String startStreet) {
-        this.startStreet = startStreet;
-    }
-
-    public void setStartHouseNumber(String startHouseNumber) {
-        this.startHouseNumber = startHouseNumber;
-    }
-
-    public void setStartPlz(String startPlz) {
-        this.startPlz = startPlz;
-    }
-
-    public void setStartCity(String startCity) {
-        this.startCity = startCity;
-    }
-
-    public void setStartCountry(String startCountry) {
-        this.startCountry = startCountry;
-    }
-
-    public void setEndStreet(String endStreet) {
-        this.endStreet = endStreet;
-    }
-
-    public void setEndHouseNumber(String endHouseNumber) {
-        this.endHouseNumber = endHouseNumber;
-    }
-
-    public void setEndPlz(String endPlz) {
-        this.endPlz = endPlz;
-    }
-
-    public void setEndCity(String endCity) {
-        this.endCity = endCity;
-    }
-
-    public void setEndCountry(String endCountry) {
-        this.endCountry = endCountry;
-    }
-
-    public void setCoordinates(String coordinates) {
-        this.coordinates = coordinates;
-    }
-
-    public void setRequestedAt(LocalDateTime requestedAt) {
-        this.requestedAt = requestedAt;
-    }
-
 }

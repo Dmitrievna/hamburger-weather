@@ -1,13 +1,15 @@
-package com.project.hamburger_weather.persistence.mapper;
+package com.project.hamburger_weather.infra.persistence.mapper;
 
 import com.project.hamburger_weather.domain.model.SavedRoute;
-import com.project.hamburger_weather.persistence.entity.RouteEntity;
+import com.project.hamburger_weather.infra.persistence.entity.RouteEntity;
 import org.springframework.stereotype.Component;
 import com.project.hamburger_weather.domain.model.Address;
 import com.project.hamburger_weather.domain.model.Route;
 import com.google.gson.Gson;
 import java.util.List;
 import com.project.hamburger_weather.domain.model.Coordinate;
+import java.time.LocalDateTime;
+import com.google.gson.reflect.TypeToken;
 
 @Component
 public class SavedRouteMapper {
@@ -34,29 +36,33 @@ public class SavedRouteMapper {
         );
     }
 
-    public RouteEntity toEntity(Address start, Address end, Route route, String tag) {
-        return new RouteEntity(
-                tag,
-                start.street(),
-                start.houseNumber(),
-                start.plz(),
-                start.city(),
-                start.country(),
-                end.street(),
-                end.houseNumber(),
-                end.plz(),
-                end.city(),
-                end.country(),
-                new Gson().toJson(route.coordinates()),
-                null
-        );
+    public RouteEntity toEntity(String tag, Address from, Address to, Route route) {
+        String coordinatesJson = new Gson().toJson(route.coordinates());
+        System.out.println("Coordinates JSON: " + coordinatesJson); // add this
+        System.out.println("Coordinates type: " + coordinatesJson.getClass().getName());
+        return RouteEntity.builder()
+                .tag(tag)
+                .startStreet(from.street())
+                .startHouseNumber(from.num())
+                .startPlz(from.plz())
+                .startCity(from.city())
+                .startCountry(from.country())
+                .endStreet(to.street())
+                .endHouseNumber(to.num())
+                .endPlz(to.plz())
+                .endCity(to.city())
+                .endCountry(to.country())
+                .coordinates(new Gson().toJson(route.coordinates()))
+                .requestedAt(LocalDateTime.now())
+                .build();
     }
 
-
-
     private Route parseCoordinates(String coordinatesJson) {
-
-        Coordinate[] coordinates = new Gson().fromJson(coordinatesJson, Coordinate[].class);
-        return new Route(List.of(coordinates));
+        List<Coordinate> coordinates = new Gson().fromJson(
+                coordinatesJson,
+                new TypeToken<List<Coordinate>>() {
+                }.getType()
+        );
+        return new Route(coordinates);
     }
 }
