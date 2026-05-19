@@ -55,12 +55,12 @@ public class RouteAndWeatherService {
         Mono<Coordinate> toCoordinate = geoConverterService.getCoordinate(to);
 
         // first check if there is a saved route for the given addresses, if not calculate a new one and then save
-        Mono<Boolean> routeExists = routeRequestRepository.existsByAddresses(from.street(), from.city(), from.country(), to.street(), to.city(), to.country());
+        Mono<Boolean> routeExists = routeRequestRepository.existsByAddresses(from.street(), from.city(), from.num(), from.plz(), from.country(), to.street(), to.num(), to.plz(), to.city(), to.country());
 
         Mono<Route> route = routeExists
                 .flatMap(exists -> {
                     if (exists) {
-                        return routeRequestRepository.findByAddresses(from.street(), from.city(), from.country(), to.street(), to.city(), to.country())
+                        return routeRequestRepository.findByAddresses(from.street(), from.city(), from.num(), from.plz(), from.country(), to.street(), to.num(), to.plz(), to.city(), to.country())
                                 .map(savedRouteMapper::toDomain)
                                 .map(savedRoute -> savedRoute.route());
                     } else {
@@ -68,8 +68,8 @@ public class RouteAndWeatherService {
                                 .flatMap(tuple -> routingService.getRoute(tuple.getT1(), tuple.getT2()))
                                 .flatMap(r -> {
                                     Route deduplicated = coordinatesOptimizator.deduplicate(r);
+                                    // todo figure out how to generate a tag for the route, maybe use a hash of the coordinates or a combination of the addresses
                                     RouteEntity entity = savedRouteMapper.toEntity("Test Tag 1", from, to, deduplicated);
-                                    System.out.println("Entity to save: " + entity);  // ← add this
                                     return routeRequestRepository
                                             .save(entity)
                                             .thenReturn(deduplicated);
