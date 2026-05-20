@@ -31,7 +31,8 @@ public class RoutingService {
                 .build(from.longitude(), from.latitude(), to.longitude(), to.latitude()))
                 .retrieve()
                 .bodyToMono(RoutingServiceDto.class)
-                .map(mapper::toRoute);
+                .map(mapper::toRoute)
+                .onErrorMap(e -> new RuntimeException("Error while fetching route from routing service", e));
     }
 
 }

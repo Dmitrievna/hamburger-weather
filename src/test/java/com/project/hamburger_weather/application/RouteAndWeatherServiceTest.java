@@ -1,54 +1,42 @@
 package com.project.hamburger_weather.application;
 
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.any;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import java.time.LocalDateTime;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import com.project.hamburger_weather.infra.persistence.entity.RouteEntity;
-import com.project.hamburger_weather.infra.persistence.mapper.SavedRouteMapper;
-import com.project.hamburger_weather.infra.persistence.repository.RouteRequestRepository;
-import com.project.hamburger_weather.infra.support.CoordinatesOptimizator;
-import reactor.core.publisher.Mono;
+
+import com.project.hamburger_weather.domain.model.Address;
+import com.project.hamburger_weather.domain.model.Coordinate;
+import com.project.hamburger_weather.domain.model.ForecastReport;
+import com.project.hamburger_weather.domain.model.HourlyForecast;
+import com.project.hamburger_weather.domain.model.LocationForecast;
+import com.project.hamburger_weather.domain.model.Route;
 import com.project.hamburger_weather.domain.model.SavedRoute;
 import com.project.hamburger_weather.domain.service.WeatherAnalysisService;
-import com.project.hamburger_weather.infra.api.GeoConverterService;
-import com.project.hamburger_weather.infra.api.RoutingService;
+import com.project.hamburger_weather.exception.RouteNotFoundException;
+import com.project.hamburger_weather.exception.TagNotFoundException;
 import com.project.hamburger_weather.infra.api.WeatherService;
-import com.project.hamburger_weather.domain.model.Address;
-import com.project.hamburger_weather.domain.model.Route;
-import com.project.hamburger_weather.domain.model.Coordinate;
-import java.util.Arrays;
+
+import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
-import com.project.hamburger_weather.domain.model.LocationForecast;
-import com.project.hamburger_weather.domain.model.HourlyForecast;
-import com.project.hamburger_weather.domain.model.ForecastReport;
 
 @ExtendWith(MockitoExtension.class)
 public class RouteAndWeatherServiceTest {
 
     @Mock
-    private RouteRequestRepository repository;
-
-    @Mock
-    private RoutingService routingService;
-
-    @Mock
-    private GeoConverterService geoConverterService;
-
-    @Mock
     private WeatherService weatherService;
 
     @Mock
-    private SavedRouteMapper mapper;
-
-    @Mock
-    private CoordinatesOptimizator coordinatesOptimizator;
+    private SavedRouteService savedRouteService;
 
     @Mock
     private WeatherAnalysisService weatherAnalysisService;
@@ -56,75 +44,83 @@ public class RouteAndWeatherServiceTest {
     @InjectMocks
     private RouteAndWeatherService routeAndWeatherService;
 
+    // test data
+    private final Address from = new Address("Musterstraße", "1", "20095", "Hamburg", "Germany");
+    private final Address to = new Address("Reeperbahn", "1", "20359", "Hamburg", "Germany");
+    private final Coordinate fromCoord = new Coordinate(53.55, 10.0);
+    private final Coordinate toCoord = new Coordinate(53.56, 10.1);
+    private final List<Coordinate> coordinates = List.of(fromCoord, toCoord);
+    private final Route route = new Route(coordinates);
+    private final LocationForecast forecast = buildTestForecast();
+    private final ForecastReport report = buildTestReport();
+
     @Test
-    void shouldReturnSavedRouteWhenItExistsInDatabase() {
-        // given
-        RouteEntity entity = buildRouteEntity();
-        SavedRoute domain = buildRouteDomain();
+    void shouldReturnForecastForGivenStartAndFinish() {
+        SavedRoute savedRoute = new SavedRoute("Test Tag 1", from, to, route, LocalDateTime.now());
 
-        when(repository.existsByAddresses(any(), any(), any(), any(), any(), any(), any(), any(), any(), any()))
-                .thenReturn(Mono.just(true));
-        when(repository.findByAddresses(any(), any(), any(), any(), any(), any(), any(), any(), any(), any()))
-                .thenReturn(Mono.just(entity));
-        when(mapper.toDomain(entity))
-                .thenReturn(domain);
-        when(weatherService.getForecast(any()))
-                .thenReturn(Mono.just(buildLocationForecast()));
-        when(weatherAnalysisService.summarizeToReport(any()))
-                .thenReturn(Mono.just(buildReport()));
+        when(savedRouteService.getRouteByAddress(
+                any(), any()))
+                .thenReturn(Mono.just(savedRoute));
 
-        // when
-        StepVerifier.create(routeAndWeatherService.getRouteForecastResultForGivenStartAndFinish(new Address("Test Street 1", "Test House Num 1", "Test PLZ 1", "Test City 1", "Test Country 1"), new Address("Test Street 2", "Test House Num 2", "Test PLZ 2", "Test City 2", "Test Country 2")))
-                // then
-                .expectNextMatches(result -> result.route().coordinates().equals(Arrays.asList(
-                new Coordinate(1.0, 10.0))))
+        when(weatherService.getForecast(any())).thenReturn(Mono.just(forecast));
+        when(weatherAnalysisService.summarizeToReport(any())).thenReturn(report);
+
+        StepVerifier.create(routeAndWeatherService.getRouteForecastResultForGivenStartAndFinish(from, to))
+                .expectNextMatches(result
+                        -> result.route().coordinates().size() == 2
+                && result.forecast() != null
+                )
                 .verifyComplete();
-
-        // verify routing API was NOT called
-        verify(routingService, never()).getRoute(any(), any());
     }
 
-    private RouteEntity buildRouteEntity() {
-        return new RouteEntity(
-                1L,
-                "Test Tag 1",
-                "Test Street 1",
-                "Test House Num 1",
-                "Test PLZ 1",
-                "Test City 1",
-                "Test Country 1",
-                "Test Street 2",
-                "Test House Num 2",
-                "Test PLZ 2",
-                "Test City 2",
-                "Test Country 2",
-                "[{1.0, 10.0}]",
-                LocalDateTime.now());
+    @Test
+    void shouldReturnForecastForGivenTag() {
+        SavedRoute savedRoute = new SavedRoute("Test Tag 1", from, to, route, LocalDateTime.now());
+
+        when(savedRouteService.getRouteByTag(
+                any()))
+                .thenReturn(Mono.just(savedRoute));
+
+        when(weatherService.getForecast(any())).thenReturn(Mono.just(forecast));
+        when(weatherAnalysisService.summarizeToReport(any())).thenReturn(report);
+
+        StepVerifier.create(routeAndWeatherService.getRouteForecastResultForGivenTag("Test Tag 1"))
+                .expectNextMatches(result
+                        -> result.route().coordinates().size() == 2
+                && result.forecast() != null
+                )
+                .verifyComplete();
     }
 
-    private SavedRoute buildRouteDomain() {
-        return new SavedRoute(
-                "Test Tag 1",
-                new Address(
-                        "Test Street 1",
-                        "Test House Num 1",
-                        "Test PLZ 1",
-                        "Test City 1",
-                        "Test Country 1"),
-                new Address(
-                        "Test Street 2",
-                        "Test House Num 2",
-                        "Test PLZ 2",
-                        "Test City 2",
-                        "Test Country 2"),
-                new Route(
-                        Arrays.asList(
-                                new Coordinate(1.0, 10.0)
-                        )),
-                LocalDateTime.now());
+    @Test
+    void shouldReturnErrorWhenRoutingServiceIsNotResponding() {
+        when(savedRouteService.getRouteByAddress(any(), any()))
+                .thenReturn(Mono.error(new RuntimeException("Error while fetching route from routing service")));
+
+        StepVerifier.create(routeAndWeatherService.getRouteForecastResultForGivenStartAndFinish(from, to))
+                .expectErrorMatches(throwable -> throwable instanceof RuntimeException
+                && throwable.getMessage().equals("Error while fetching route from routing service"))
+                .verify();
+
+        verify(weatherService, never()).getForecast(any());
+        verify(weatherAnalysisService, never()).summarizeToReport(any());
     }
 
-    private LocationForecast buildLocationForecast() {
+    @Test
+    void shouldReturnErrorWhenRouteNotFoundForGivenTag() {
+        when(savedRouteService.getRouteByTag(any()))
+                .thenReturn(Mono.error(new TagNotFoundException("Route with tag NonExistingTag not found")));
+
+        StepVerifier.create(routeAndWeatherService.getRouteForecastResultForGivenTag("NonExistingTag"))
+                .expectErrorMatches(throwable -> throwable instanceof TagNotFoundException
+                && throwable.getMessage().equals("Route with tag NonExistingTag not found"))
+                .verify();
+
+        verify(weatherService, never()).getForecast(any());
+        verify(weatherAnalysisService, never()).summarizeToReport(any());
+    }
+
+    private LocationForecast buildTestForecast() {
         return new LocationForecast(
                 new Coordinate(1.0, 10.0),
                 Arrays.asList(new HourlyForecast(
@@ -138,15 +134,15 @@ public class RouteAndWeatherServiceTest {
         );
     }
 
-    private ForecastReport buildReport() {
+    private ForecastReport buildTestReport() {
         return new ForecastReport(
-            20.0,
-            10.0,
-            0.0,
-            5.0,
-            false, 
-            true, 
-            false
+                20.0,
+                10.0,
+                0.0,
+                5.0,
+                false,
+                true,
+                false
         );
     }
 }
