@@ -22,7 +22,6 @@ import com.project.hamburger_weather.domain.model.LocationForecast;
 import com.project.hamburger_weather.domain.model.Route;
 import com.project.hamburger_weather.domain.model.SavedRoute;
 import com.project.hamburger_weather.domain.service.WeatherAnalysisService;
-import com.project.hamburger_weather.exception.RouteNotFoundException;
 import com.project.hamburger_weather.exception.TagNotFoundException;
 import com.project.hamburger_weather.infra.api.WeatherService;
 
@@ -53,10 +52,10 @@ public class RouteAndWeatherServiceTest {
     private final Route route = new Route(coordinates);
     private final LocationForecast forecast = buildTestForecast();
     private final ForecastReport report = buildTestReport();
+    private final SavedRoute savedRoute = new SavedRoute("Test Tag 1", from, to, route, LocalDateTime.now());
 
     @Test
     void shouldReturnForecastForGivenStartAndFinish() {
-        SavedRoute savedRoute = new SavedRoute("Test Tag 1", from, to, route, LocalDateTime.now());
 
         when(savedRouteService.getRouteByAddress(
                 any(), any()))
@@ -75,7 +74,6 @@ public class RouteAndWeatherServiceTest {
 
     @Test
     void shouldReturnForecastForGivenTag() {
-        SavedRoute savedRoute = new SavedRoute("Test Tag 1", from, to, route, LocalDateTime.now());
 
         when(savedRouteService.getRouteByTag(
                 any()))

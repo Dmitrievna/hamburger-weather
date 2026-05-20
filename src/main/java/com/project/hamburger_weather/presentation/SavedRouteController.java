@@ -12,9 +12,12 @@ import com.project.hamburger_weather.application.SavedRouteService;
 import com.project.hamburger_weather.presentation.dto.RouteResponseDto;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/v1/routes")
+@Validated
 public class SavedRouteController {
 
     private final SavedRouteService savedRouteService;
@@ -26,7 +29,7 @@ public class SavedRouteController {
     //get all saved routes
     //get a specific route by id
     @GetMapping("/{tag}")
-    public Mono<ResponseEntity<RouteResponseDto>> getRouteByTag(@RequestParam String tag) {
+    public Mono<ResponseEntity<RouteResponseDto>> getRouteByTag(@RequestParam @Valid String tag) {
         // Implementation to retrieve a route by its Tag
 
         /// todo check exceptions if not found should work

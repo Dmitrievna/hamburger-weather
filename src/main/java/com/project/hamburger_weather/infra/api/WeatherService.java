@@ -35,6 +35,7 @@ public class WeatherService {
                 .build())
                 .retrieve()
                 .bodyToMono(WeatherServiceDto.class)
-                .map(mapper::toLocationForecast);
+                .map(mapper::toLocationForecast)
+                .onErrorMap(e -> new RuntimeException("Error while fetching weather forecast from weather service", e));
     }
 }

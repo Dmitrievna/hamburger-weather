@@ -42,6 +42,7 @@ public class GeoConverterService {
                             Double.valueOf(first.lon()),
                             Double.valueOf(first.lat())
                     );
-                });
+                })
+                .onErrorMap(e -> new RuntimeException("Error while fetching coordinates from geocoding service", e));
     }
 }
