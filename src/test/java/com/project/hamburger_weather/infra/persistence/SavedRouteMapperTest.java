@@ -56,7 +56,7 @@ public class SavedRouteMapperTest {
                 domain.route()
         );
 
-        assertThat(entity.getId()).isNull(); // important — must be null for insert
+        assertThat(entity.getId()).isNull(); // must be null for db insert
         assertThat(entity.getTag()).isEqualTo("home-to-work");
         assertThat(entity.getCoordinates()).contains("latitude");
         assertThat(entity.getRequestedAt()).isNotNull();

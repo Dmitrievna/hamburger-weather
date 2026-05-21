@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import reactor.core.publisher.Mono;
 
-import com.project.hamburger_weather.domain.model.SavedRoute;
 import com.project.hamburger_weather.application.SavedRouteService;
 import com.project.hamburger_weather.presentation.dto.RouteResponseDto;
 

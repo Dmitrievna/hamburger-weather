@@ -21,12 +21,12 @@ public interface RouteRequestRepository
             @Param("startStreet") String startStreet,
             @Param("startHouseNumber") String startHouseNumber,
             @Param("startCity") String startCity,
-            @Param("startPLZ") String startPlz,
+            @Param("startPlz") String startPlz,
             @Param("startCountry") String startCountry,
             @Param("endStreet") String endStreet,
             @Param("endHouseNumber") String endHouseNumber,
             @Param("endCity") String endCity,
-            @Param("endPLZ") String endPlz,
+            @Param("endPlz") String endPlz,
             @Param("endCountry") String endCountry);
 
     Mono<RouteEntity> findByTag(String tag);
@@ -36,12 +36,12 @@ public interface RouteRequestRepository
             @Param("startStreet") String startStreet,
             @Param("startHouseNumber") String startHouseNumber,
             @Param("startCity") String startCity,
-            @Param("startPLZ") String startPlz,
+            @Param("startPlz") String startPlz,
             @Param("startCountry") String startCountry,
             @Param("endStreet") String endStreet,
             @Param("endHouseNumber") String endHouseNumber,
             @Param("endCity") String endCity,
-            @Param("endPLZ") String endPlz,
+            @Param("endPlz") String endPlz,
             @Param("endCountry") String endCountry);
 
 }
