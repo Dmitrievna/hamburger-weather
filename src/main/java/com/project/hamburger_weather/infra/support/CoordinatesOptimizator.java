@@ -42,7 +42,7 @@ public class CoordinatesOptimizator {
         return new Route(optimizedRoute);
     }
 
-    private static double distanceInKm(double lat1, double lon1, double lat2, double lon2) {
+    public static double distanceInKm(double lat1, double lon1, double lat2, double lon2) {
         double R = 6371; // Radius of the earth in km
         double dLat = Math.toRadians(lat2 - lat1);
         double dLon = Math.toRadians(lon2 - lon1);

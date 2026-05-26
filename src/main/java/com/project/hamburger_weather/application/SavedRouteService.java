@@ -56,7 +56,7 @@ public class SavedRouteService {
 
                     }
                 }).cache();
-                //cache is to avoid double subscribtion
+        //cache is to avoid double subscribtion
 
     }
 
