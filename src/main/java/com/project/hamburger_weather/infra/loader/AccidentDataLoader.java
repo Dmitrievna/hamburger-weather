@@ -12,6 +12,8 @@ import java.io.InputStreamReader;
 import com.project.hamburger_weather.domain.model.AccidentStats;
 import org.springframework.core.io.Resource;
 import java.util.Arrays;
+import com.project.hamburger_weather.domain.model.RoadCondition;
+import com.project.hamburger_weather.domain.model.LightCondition;
 
 @Component
 public class AccidentDataLoader {
@@ -64,9 +66,9 @@ public class AccidentDataLoader {
             if (isBikeAccident == 1) {
                 double lat = Double.parseDouble(parts[columns.indexOf("XGCSWGS84")].trim().replace(",", "."));
                 double lon = Double.parseDouble(parts[columns.indexOf("YGCSWGS84")].trim().replace(",", "."));
-                String roadCondition
-                        = getValueDifferentColumnNames(parts, columns, streetConditionNames);
-                String lightCondition = parts[columns.indexOf("ULICHTVERH")];
+                RoadCondition roadCondition = mapRoadCondition(getValueDifferentColumnNames(parts, columns, streetConditionNames));
+
+                LightCondition lightCondition = mapLightCondition(parts[columns.indexOf("ULICHTVERH")]);
                 return new AccidentStats(new Coordinate(lat, lon), roadCondition, lightCondition);
             }
             return null;
@@ -95,6 +97,28 @@ public class AccidentDataLoader {
             }
         }
         return null;
+    }
+
+    private RoadCondition mapRoadCondition(String value) {
+        return switch (value) {
+            case "1" ->
+                RoadCondition.RAIN;
+            case "2" ->
+                RoadCondition.SNOW;
+            default ->
+                RoadCondition.DRY;
+        };
+    }
+
+    private LightCondition mapLightCondition(String value) {
+        return switch (value) {
+            case "1" ->
+                LightCondition.TWILIGHT;
+            case "2" ->
+                LightCondition.NIGHT;
+            default ->
+                LightCondition.CLEAR;
+        };
     }
 
     public List<AccidentStats> getAccidentStats() {

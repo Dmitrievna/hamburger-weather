@@ -44,6 +44,8 @@ public class WeatherAnalysisService {
 
         boolean warm = temperatureStats.getAverage() > 12.0;
 
+        boolean snowy = weatherCodes.stream().anyMatch(code -> wmoCodesService.checkIfSnow(code));
+
         boolean goodByCodes = weatherCodes.stream().allMatch(code -> wmoCodesService.checkIfGood(code));
 
         boolean goodWeather = warm && !rainy && !windy && goodByCodes;
@@ -55,7 +57,9 @@ public class WeatherAnalysisService {
                 precipationProbStats.getAverage(),
                 rainy,
                 goodWeather,
-                windy);
+                windy,
+                snowy
+        );
 
     }
 

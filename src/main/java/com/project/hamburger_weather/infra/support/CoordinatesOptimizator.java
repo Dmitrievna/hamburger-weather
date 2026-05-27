@@ -29,7 +29,7 @@ public class CoordinatesOptimizator {
             Coordinate coord = route.coordinates().get(i);
 
             if (optimizedRoute.stream().noneMatch(
-                    c -> distanceInKm(c.latitude(), c.longitude(), coord.latitude(), coord.longitude()) < thresholdKm
+                    c -> distanceInKm(c, coord) < thresholdKm
             )) {
                 if (!optimizedRoute.contains(coord)) {
                     optimizedRoute.add(coord);
@@ -42,8 +42,12 @@ public class CoordinatesOptimizator {
         return new Route(optimizedRoute);
     }
 
-    public static double distanceInKm(double lat1, double lon1, double lat2, double lon2) {
+    public static double distanceInKm(Coordinate coord1, Coordinate coord2) {
         double R = 6371; // Radius of the earth in km
+        double lat1 = coord1.latitude();
+        double lon1 = coord1.longitude();
+        double lat2 = coord2.latitude();
+        double lon2 = coord2.longitude();
         double dLat = Math.toRadians(lat2 - lat1);
         double dLon = Math.toRadians(lon2 - lon1);
         double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)

@@ -24,6 +24,10 @@ import com.project.hamburger_weather.domain.model.SavedRoute;
 import com.project.hamburger_weather.domain.service.WeatherAnalysisService;
 import com.project.hamburger_weather.exception.TagNotFoundException;
 import com.project.hamburger_weather.infra.api.WeatherService;
+import com.project.hamburger_weather.domain.service.AccidentAnalysisService;
+import com.project.hamburger_weather.domain.model.AccidentReport;
+import com.project.hamburger_weather.domain.model.RiskLevel;
+import com.project.hamburger_weather.domain.service.CorrelateAccidentsAndWeatherService;
 
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -42,6 +46,12 @@ public class RouteAndWeatherServiceTest {
 
     @InjectMocks
     private RouteAndWeatherService routeAndWeatherService;
+
+    @Mock
+    private AccidentAnalysisService accidentAnalysisService;
+
+    @Mock
+    private CorrelateAccidentsAndWeatherService correlateAccidentsAndWeatherService;
 
     // test data
     private final Address from = new Address("Musterstraße", "1", "20095", "Hamburg", "Germany");
@@ -63,8 +73,10 @@ public class RouteAndWeatherServiceTest {
 
         when(weatherService.getForecast(any())).thenReturn(Mono.just(forecast));
         when(weatherAnalysisService.summarizeToReport(any())).thenReturn(report);
+        when(accidentAnalysisService.getRoadAccidentsAssessment(any())).thenReturn(buildTestAccidentReport());
+        when(CorrelateAccidentsAndWeatherService.correlateWeatherAndAccidents(any(), any())).thenReturn(buildTestCorrelatedAccidents());
 
-        StepVerifier.create(routeAndWeatherService.getRouteForecastResultForGivenStartAndFinish(from, to))
+        StepVerifier.create(routeAndWeatherService.getFullAnalysisForStartAndFinish(from, to))
                 .expectNextMatches(result
                         -> result.route().coordinates().size() == 2
                 && result.forecast() != null
@@ -81,6 +93,8 @@ public class RouteAndWeatherServiceTest {
 
         when(weatherService.getForecast(any())).thenReturn(Mono.just(forecast));
         when(weatherAnalysisService.summarizeToReport(any())).thenReturn(report);
+        when(accidentAnalysisService.getRoadAccidentsAssessment(any())).thenReturn(buildTestAccidentReport());
+        when(CorrelateAccidentsAndWeatherService.correlateWeatherAndAccidents(any(), any())).thenReturn(buildTestCorrelatedAccidents());
 
         StepVerifier.create(routeAndWeatherService.getRouteForecastResultForGivenTag("Test Tag 1"))
                 .expectNextMatches(result
@@ -95,7 +109,7 @@ public class RouteAndWeatherServiceTest {
         when(savedRouteService.getRouteByAddress(any(), any()))
                 .thenReturn(Mono.error(new RuntimeException("Error while fetching route from routing service")));
 
-        StepVerifier.create(routeAndWeatherService.getRouteForecastResultForGivenStartAndFinish(from, to))
+        StepVerifier.create(routeAndWeatherService.getFullAnalysisForStartAndFinish(from, to))
                 .expectErrorMatches(throwable -> throwable instanceof RuntimeException
                 && throwable.getMessage().equals("Error while fetching route from routing service"))
                 .verify();
@@ -135,12 +149,21 @@ public class RouteAndWeatherServiceTest {
     private ForecastReport buildTestReport() {
         return new ForecastReport(
                 20.0,
-                10.0,
+                20.0,
+                20.0,
                 0.0,
-                5.0,
                 false,
                 true,
+                false,
                 false
         );
+    }
+
+    private AccidentReport buildTestAccidentReport() {
+        return new AccidentReport(10, 5, 1, 0, 0, 0, 0, RiskLevel.HIGH);
+    }
+
+    private int buildTestCorrelatedAccidents() {
+        return 5;
     }
 }

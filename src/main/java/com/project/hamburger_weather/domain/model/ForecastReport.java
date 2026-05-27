@@ -7,7 +7,8 @@ public record ForecastReport(
         double avgPrecipitationProbability,
         boolean rainy,
         boolean goodWeather,
-        boolean windy
+        boolean windy,
+        boolean snowy
         ) {
 
 }

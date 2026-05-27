@@ -1,6 +1,7 @@
 package com.project.hamburger_weather.presentation.dto;
 
 import com.project.hamburger_weather.domain.model.Route;
+import com.project.hamburger_weather.domain.model.RiskLevel;
 
 public record ForecastResponseDto(
         Route route,
@@ -10,7 +11,10 @@ public record ForecastResponseDto(
         double avgPrecipitationProbability,
         boolean rainy,
         boolean goodWeather,
-        boolean windy
+        boolean windy,
+        int numberOfAccidents,
+        int numberOfRelatedAccidents,
+        RiskLevel accidentRiskLevel
         ) {
 
 }

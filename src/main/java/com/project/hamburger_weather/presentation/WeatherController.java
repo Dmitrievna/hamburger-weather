@@ -35,8 +35,8 @@ public class WeatherController {
         Address to = new Address(request.end().street(), request.end().num(), request.end().plz(),
                 request.end().city(), request.end().country());
 
-        Mono<ForecastResponseDto> response = routeAndWeatherService.getRouteForecastResultForGivenStartAndFinish(from, to)
-                .map(r -> weatherReportMapper.toForecastResponseDto(r.forecast(), r.route()));
+        Mono<ForecastResponseDto> response = routeAndWeatherService.getFullAnalysisForStartAndFinish(from, to)
+                .map(r -> weatherReportMapper.toForecastResponseDto(r));
 
         return response;
     }

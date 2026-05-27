@@ -5,19 +5,18 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.project.hamburger_weather.domain.model.Address;
-import com.project.hamburger_weather.domain.model.Coordinate;
+import com.project.hamburger_weather.domain.model.ForecastReport;
 import com.project.hamburger_weather.domain.model.LocationForecast;
 import com.project.hamburger_weather.domain.model.Route;
-import com.project.hamburger_weather.infra.api.GeoConverterService;
 import com.project.hamburger_weather.infra.api.RoutingService;
 import com.project.hamburger_weather.infra.api.WeatherService;
 import com.project.hamburger_weather.domain.service.WeatherAnalysisService;
-import com.project.hamburger_weather.infra.support.CoordinatesOptimizator;
 import com.project.hamburger_weather.domain.model.RouteForecastResult;
-import com.project.hamburger_weather.infra.persistence.mapper.SavedRouteMapper;
-import com.project.hamburger_weather.infra.persistence.repository.RouteRequestRepository;
-import com.project.hamburger_weather.infra.persistence.entity.RouteEntity;
 import com.project.hamburger_weather.domain.model.SavedRoute;
+import com.project.hamburger_weather.domain.service.AccidentAnalysisService;
+import com.project.hamburger_weather.domain.model.AccidentReport;
+import com.project.hamburger_weather.domain.model.LightCondition;
+import com.project.hamburger_weather.domain.service.CorrelateAccidentsAndWeatherService;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -29,17 +28,20 @@ public class RouteAndWeatherService {
     private final WeatherService weatherService;
     private final WeatherAnalysisService weatherAnalysisService;
     private final SavedRouteService savedRouteService;
+    private final AccidentAnalysisService accidentAnalysisService;
 
     public RouteAndWeatherService(WeatherService weatherService, RoutingService routingService,
-            GeoConverterService geoConverterService, CoordinatesOptimizator coordinatesOptimizator, WeatherAnalysisService weatherAnalysisService, SavedRouteService savedRouteService, RouteRequestRepository routeRequestRepository, SavedRouteMapper savedRouteMapper) {
+            WeatherAnalysisService weatherAnalysisService, SavedRouteService savedRouteService, AccidentAnalysisService accidentAnalysisService) {
         this.weatherService = weatherService;
         this.weatherAnalysisService = weatherAnalysisService;
         this.savedRouteService = savedRouteService;
+        this.accidentAnalysisService = accidentAnalysisService;
     }
 
     // maybe rename both class and method
-    public Mono<RouteForecastResult> getRouteForecastResultForGivenStartAndFinish(Address from, Address to) {
+    public Mono<RouteForecastResult> getFullAnalysisForStartAndFinish(Address from, Address to) {
 
+        // get the route for a given start and finish
         Mono<SavedRoute> route = savedRouteService.getRouteByAddress(from, to);
         // get weather predictions for a given coordinates
         Mono<List<LocationForecast>> routeForecast
@@ -47,29 +49,53 @@ public class RouteAndWeatherService {
                 .flatMap(coord -> weatherService.getForecast(coord))
                 .collectList());
 
-        // analyze the weather predictions and summarize to a report
-        Mono<RouteForecastResult> result = Mono.zip(route, routeForecast)
+        // analyze the weather predictions
+        Mono<ForecastReport> forecastReport = routeForecast.map(forecasts -> weatherAnalysisService.summarizeToReport(forecasts));
+
+        // analyze the accident risk for a given route
+        Mono<AccidentReport> accidentReport = route.map(r -> accidentAnalysisService.getRoadAccidentsAssessment(r.route().coordinates()));
+        // combine
+
+        Mono<Integer> correlatedAccidents = Mono.zip(forecastReport, accidentReport)
+                .map(tuple -> CorrelateAccidentsAndWeatherService.correlateWeatherAndAccidents(tuple.getT1(), tuple.getT2()));
+        Mono<RouteForecastResult> result = Mono.zip(route, forecastReport, accidentReport, correlatedAccidents)
                 .map(tuple -> new RouteForecastResult(
                 tuple.getT1().route(),
-                weatherAnalysisService.summarizeToReport(tuple.getT2())
+                tuple.getT2(),
+                tuple.getT3().totalAccidents(),
+                tuple.getT4(),
+                tuple.getT3().riskLevel()
         ));
-
         return result;
     }
 
     public Mono<RouteForecastResult> getRouteForecastResultForGivenTag(String tag) {
-        return savedRouteService.getRouteByTag(tag)
-                .flatMap(savedRoute -> {
-                    Route route = savedRoute.route();
-                    Mono<List<LocationForecast>> routeForecast
-                            = Flux.fromIterable(route.coordinates())
-                                    .flatMap(coord -> weatherService.getForecast(coord))
-                                    .collectList();
 
-                    return routeForecast.map(forecasts -> new RouteForecastResult(
-                            route,
-                            weatherAnalysisService.summarizeToReport(forecasts)
-                    ));
+        Mono<SavedRoute> route = savedRouteService.getRouteByTag(tag);
+
+        Mono<List<LocationForecast>> locationForecasts = route
+                .flatMap(r -> {
+                    return Flux.fromIterable(r.route().coordinates())
+                            .flatMap(c -> weatherService.getForecast(c))
+                            .collectList();
                 });
+        Mono<ForecastReport> forecastReport = locationForecasts.map(forecasts -> weatherAnalysisService.summarizeToReport(forecasts));
+        // analyze the accident risk for a given route
+        Mono<AccidentReport> accidentReport = route.map(r -> accidentAnalysisService.getRoadAccidentsAssessment(r.route().coordinates()));
+        // combine
+
+        Mono<Integer> correlatedAccidents = Mono.zip(forecastReport, accidentReport)
+                .map(tuple -> CorrelateAccidentsAndWeatherService.correlateWeatherAndAccidents(tuple.getT1(), tuple.getT2()));
+        Mono<RouteForecastResult> result = Mono.zip(route, forecastReport, accidentReport, correlatedAccidents)
+                .map(tuple -> new RouteForecastResult(
+                tuple.getT1().route(),
+                tuple.getT2(),
+                tuple.getT3().totalAccidents(),
+                tuple.getT4(),
+                tuple.getT3().riskLevel()
+        ));
+        return result;
+
     }
+
 }

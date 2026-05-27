@@ -1,24 +1,29 @@
 package com.project.hamburger_weather.presentation.mapper;
 
 import org.springframework.stereotype.Component;
+
 import com.project.hamburger_weather.domain.model.ForecastReport;
 
 import com.project.hamburger_weather.domain.model.Route;
+import com.project.hamburger_weather.domain.model.RouteForecastResult;
 import com.project.hamburger_weather.presentation.dto.ForecastResponseDto;
 
 @Component
 public class WeatherReportMapper {
 
-    public ForecastResponseDto toForecastResponseDto(ForecastReport forecastReport, Route route) {
+    public ForecastResponseDto toForecastResponseDto(RouteForecastResult routeForecastResult) {
         return new ForecastResponseDto(
-                route,
-                forecastReport.avgTemperature(),
-                forecastReport.minTemperature(),
-                forecastReport.maxTemperature(),
-                forecastReport.avgPrecipitationProbability(),
-                forecastReport.rainy(),
-                forecastReport.goodWeather(),
-                forecastReport.windy()
+                routeForecastResult.route(),
+                routeForecastResult.forecast().avgTemperature(),
+                routeForecastResult.forecast().minTemperature(),
+                routeForecastResult.forecast().maxTemperature(),
+                routeForecastResult.forecast().avgPrecipitationProbability(),
+                routeForecastResult.forecast().rainy(),
+                routeForecastResult.forecast().goodWeather(),
+                routeForecastResult.forecast().windy(),
+                routeForecastResult.overallAccidents(),
+                routeForecastResult.correlatedAccidents(),
+                routeForecastResult.riskLevel()
         );
     }
 }

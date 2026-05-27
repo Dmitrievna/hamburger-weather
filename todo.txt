@@ -1,0 +1,6 @@
+todo:
+
+- fix correlated number of accidents
+- domain unit test
+- savedRoute Route do we need both
+- maybe better naming for domain services and models

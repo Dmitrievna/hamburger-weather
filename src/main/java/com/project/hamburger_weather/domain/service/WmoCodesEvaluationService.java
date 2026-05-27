@@ -57,6 +57,11 @@ public class WmoCodesEvaluationService {
         return rainOnes.contains(code);
     }
 
+    public boolean checkIfSnow(String code) {
+        List<String> snowOnes = List.of("71", "73", "75", "77", "85", "86");
+        return snowOnes.contains(code);
+    }
+
     public List<WmoCode> getWmoCodes() {
         return wmoCodes;
     }
