@@ -11,9 +11,10 @@ import reactor.core.publisher.Mono;
 import com.project.hamburger_weather.exception.RouteNotFoundException;
 import com.project.hamburger_weather.exception.TagNotFoundException;
 import com.project.hamburger_weather.infra.api.RoutingService;
-import com.project.hamburger_weather.infra.support.CoordinatesOptimizator;
+import com.project.hamburger_weather.infra.support.CoordinateOptimizerHelper;
 import com.project.hamburger_weather.infra.api.GeoConverterService;
-import com.project.hamburger_weather.domain.model.Route;
+
+import java.util.List;
 
 @Service
 public class SavedRouteService {
@@ -21,22 +22,22 @@ public class SavedRouteService {
     private final RouteRequestRepository routeRequestRepository;
     private final RoutingService routingService;
     private final SavedRouteMapper mapper;
-    private final CoordinatesOptimizator coordinatesOptimizator;
+    private final CoordinateOptimizerHelper coordinatesOptimizerHelper;
     private final GeoConverterService geoConverterService;
 
-    public SavedRouteService(RouteRequestRepository routeRequestRepository, RoutingService routingService, SavedRouteMapper mapper, CoordinatesOptimizator coordinatesOptimizator, GeoConverterService geoConverterService) {
+    public SavedRouteService(RouteRequestRepository routeRequestRepository, RoutingService routingService, SavedRouteMapper mapper, CoordinateOptimizerHelper coordinatesOptimizerHelper, GeoConverterService geoConverterService) {
         this.routeRequestRepository = routeRequestRepository;
         this.routingService = routingService;
         this.mapper = mapper;
-        this.coordinatesOptimizator = coordinatesOptimizator;
+        this.coordinatesOptimizerHelper = coordinatesOptimizerHelper;
         this.geoConverterService = geoConverterService;
     }
 
     public Mono<SavedRoute> getRouteByAddress(Address from, Address to) {
-        return routeRequestRepository.existsByAddresses(from.street(), from.num(), from.plz(), from.city(), from.country(), to.street(), to.num(), to.plz(), to.city(), to.country())
+        return routeRequestRepository.existsByAddresses(from.street(), from.num(), from.city(), from.plz(), from.country(), to.street(), to.num(), to.city(), to.plz(), to.country())
                 .flatMap(exists -> {
                     if (exists) {
-                        return routeRequestRepository.findByAddresses(from.street(), from.num(), from.plz(), from.city(), from.country(), to.street(), to.num(), to.plz(), to.city(), to.country())
+                        return routeRequestRepository.findByAddresses(from.street(), from.num(), from.city(), from.plz(), from.country(), to.street(), to.num(), to.city(), to.plz(), to.country())
                                 .map(mapper::toDomain);
                     } else {
                         Mono<Coordinate> fromCoordinate = geoConverterService.getCoordinate(from);
@@ -45,7 +46,7 @@ public class SavedRouteService {
                         return Mono.zip(fromCoordinate, toCoordinate)
                                 .flatMap(tuple -> routingService.getRoute(tuple.getT1(), tuple.getT2()))
                                 .flatMap(r -> {
-                                    Route deduplicated = coordinatesOptimizator.deduplicate(r);
+                                    List<Coordinate> deduplicated = coordinatesOptimizerHelper.deduplicate(r);
                                     // todo figure out how to generate a tag for the route, maybe use a hash of the coordinates or a combination of the addresses
                                     RouteEntity entity = mapper.toEntity("Test Tag 1", from, to, deduplicated);
                                     return routeRequestRepository

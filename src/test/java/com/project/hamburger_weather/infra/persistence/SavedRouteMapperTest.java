@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import com.project.hamburger_weather.domain.model.Coordinate;
-import com.project.hamburger_weather.domain.model.Route;
 import com.project.hamburger_weather.domain.model.SavedRoute;
 import com.project.hamburger_weather.infra.persistence.entity.RouteEntity;
 import com.project.hamburger_weather.infra.persistence.mapper.SavedRouteMapper;
@@ -41,8 +40,8 @@ public class SavedRouteMapperTest {
         assertThat(domain.tag()).isEqualTo("home-to-work");
         assertThat(domain.startAddress().city()).isEqualTo("Hamburg");
         assertThat(domain.endAddress().street()).isEqualTo("Reeperbahn");
-        assertThat(domain.route().coordinates()).hasSize(1);
-        assertThat(domain.route().coordinates().get(0).latitude()).isEqualTo(53.55);
+        assertThat(domain.coordinates()).hasSize(1);
+        assertThat(domain.coordinates().get(0).latitude()).isEqualTo(53.55);
     }
 
     @Test
@@ -53,7 +52,7 @@ public class SavedRouteMapperTest {
                 "home-to-work",
                 domain.startAddress(),
                 domain.endAddress(),
-                domain.route()
+                domain.coordinates()
         );
 
         assertThat(entity.getId()).isNull(); // must be null for db insert
@@ -73,16 +72,16 @@ public class SavedRouteMapperTest {
                 "test",
                 buildTestAddress(),
                 buildTestAddress(),
-                new Route(original),
+                original,
                 LocalDateTime.now()
         );
 
         RouteEntity entity = mapper.toEntity("test",
-                domain.startAddress(), domain.endAddress(), domain.route());
+                domain.startAddress(), domain.endAddress(), domain.coordinates());
         SavedRoute restored = mapper.toDomain(entity);
 
-        assertThat(restored.route().coordinates()).hasSize(2);
-        assertThat(restored.route().coordinates().get(0).latitude()).isEqualTo(10.0);
+        assertThat(restored.coordinates()).hasSize(2);
+        assertThat(restored.coordinates().get(0).latitude()).isEqualTo(10.0);
     }
 
     private SavedRoute buildTestDomain() {
@@ -90,7 +89,7 @@ public class SavedRouteMapperTest {
                 "home-to-work",
                 buildTestAddress(),
                 buildTestAddress(),
-                new Route(List.of(new Coordinate(53.55, 10.0))),
+                List.of(new Coordinate(53.55, 10.0)),
                 LocalDateTime.now()
         );
     }

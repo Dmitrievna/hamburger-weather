@@ -14,10 +14,10 @@ import com.project.hamburger_weather.domain.model.LocationForecast;
 @Service
 public class WeatherAnalysisService {
 
-    private final WmoCodesEvaluationService wmoCodesService;
+    private final WeatherCodesEvaluationService weatherCodesEvaluationService;
 
-    public WeatherAnalysisService(WmoCodesEvaluationService wmoCodesService) {
-        this.wmoCodesService = wmoCodesService;
+    public WeatherAnalysisService(WeatherCodesEvaluationService weatherCodesEvaluationService) {
+        this.weatherCodesEvaluationService = weatherCodesEvaluationService;
     }
 
     public ForecastReport summarizeToReport(List<LocationForecast> locationForecast) {
@@ -37,16 +37,16 @@ public class WeatherAnalysisService {
 
         boolean rainByPrecip = precipationStats.getMin() > 0.0;
         boolean rainByProb = precipationProbStats.getMin() > 30.0;
-        boolean rainByCode = weatherCodes.stream().anyMatch(code -> wmoCodesService.checkIfRain(code));
+        boolean rainByCode = weatherCodes.stream().anyMatch(code -> weatherCodesEvaluationService.checkIfRain(code));
         boolean rainy = rainByPrecip || rainByProb || rainByCode;
 
         boolean windy = windSpeedStats.getMin() > 10.0;
 
         boolean warm = temperatureStats.getAverage() > 12.0;
 
-        boolean snowy = weatherCodes.stream().anyMatch(code -> wmoCodesService.checkIfSnow(code));
+        boolean snowy = weatherCodes.stream().anyMatch(code -> weatherCodesEvaluationService.checkIfSnow(code));
 
-        boolean goodByCodes = weatherCodes.stream().allMatch(code -> wmoCodesService.checkIfGood(code));
+        boolean goodByCodes = weatherCodes.stream().allMatch(code -> weatherCodesEvaluationService.checkIfGood(code));
 
         boolean goodWeather = warm && !rainy && !windy && goodByCodes;
 

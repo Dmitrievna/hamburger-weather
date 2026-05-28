@@ -1,18 +1,17 @@
 package com.project.hamburger_weather.presentation;
 
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import reactor.core.publisher.Mono;
 
 import com.project.hamburger_weather.application.SavedRouteService;
 import com.project.hamburger_weather.presentation.dto.RouteResponseDto;
 
-import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import jakarta.validation.Valid;
+import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/v1/routes")
@@ -37,7 +36,7 @@ public class SavedRouteController {
                 route.tag(),
                 route.startAddress(),
                 route.endAddress(),
-                route.route(),
+                route.coordinates(),
                 route.requestedAt().toString()
         )))
                 .defaultIfEmpty(ResponseEntity.notFound().build());

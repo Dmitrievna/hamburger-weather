@@ -1,7 +1,9 @@
 package com.project.hamburger_weather.domain.model;
 
+import java.util.List;
+
 public record RouteForecastResult(
-        Route route,
+        List<Coordinate> route,
         ForecastReport forecast,
         int correlatedAccidents,
         int overallAccidents,

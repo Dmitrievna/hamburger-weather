@@ -4,7 +4,6 @@ import com.project.hamburger_weather.domain.model.SavedRoute;
 import com.project.hamburger_weather.infra.persistence.entity.RouteEntity;
 import org.springframework.stereotype.Component;
 import com.project.hamburger_weather.domain.model.Address;
-import com.project.hamburger_weather.domain.model.Route;
 import com.google.gson.Gson;
 import java.util.List;
 import com.project.hamburger_weather.domain.model.Coordinate;
@@ -36,8 +35,8 @@ public class SavedRouteMapper {
         );
     }
 
-    public RouteEntity toEntity(String tag, Address from, Address to, Route route) {
-        String coordinatesJson = new Gson().toJson(route.coordinates());
+    public RouteEntity toEntity(String tag, Address from, Address to, List<Coordinate> route) {
+        String coordinatesJson = new Gson().toJson(route);
         System.out.println("Coordinates JSON: " + coordinatesJson); // add this
         System.out.println("Coordinates type: " + coordinatesJson.getClass().getName());
         return RouteEntity.builder()
@@ -52,17 +51,16 @@ public class SavedRouteMapper {
                 .endPlz(to.plz())
                 .endCity(to.city())
                 .endCountry(to.country())
-                .coordinates(new Gson().toJson(route.coordinates()))
+                .coordinates(new Gson().toJson(route))
                 .requestedAt(LocalDateTime.now())
                 .build();
     }
 
-    private Route parseCoordinates(String coordinatesJson) {
-        List<Coordinate> coordinates = new Gson().fromJson(
+    private List<Coordinate> parseCoordinates(String coordinatesJson) {
+        return new Gson().fromJson(
                 coordinatesJson,
                 new TypeToken<List<Coordinate>>() {
                 }.getType()
         );
-        return new Route(coordinates);
     }
 }

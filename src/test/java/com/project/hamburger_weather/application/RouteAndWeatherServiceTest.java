@@ -7,8 +7,11 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -19,7 +22,6 @@ import com.project.hamburger_weather.domain.model.Coordinate;
 import com.project.hamburger_weather.domain.model.ForecastReport;
 import com.project.hamburger_weather.domain.model.HourlyForecast;
 import com.project.hamburger_weather.domain.model.LocationForecast;
-import com.project.hamburger_weather.domain.model.Route;
 import com.project.hamburger_weather.domain.model.SavedRoute;
 import com.project.hamburger_weather.domain.service.WeatherAnalysisService;
 import com.project.hamburger_weather.exception.TagNotFoundException;
@@ -28,7 +30,6 @@ import com.project.hamburger_weather.domain.service.AccidentAnalysisService;
 import com.project.hamburger_weather.domain.model.AccidentReport;
 import com.project.hamburger_weather.domain.model.RiskLevel;
 import com.project.hamburger_weather.domain.service.CorrelateAccidentsAndWeatherService;
-
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -50,63 +51,80 @@ public class RouteAndWeatherServiceTest {
     @Mock
     private AccidentAnalysisService accidentAnalysisService;
 
-    @Mock
-    private CorrelateAccidentsAndWeatherService correlateAccidentsAndWeatherService;
-
     // test data
     private final Address from = new Address("Musterstraße", "1", "20095", "Hamburg", "Germany");
     private final Address to = new Address("Reeperbahn", "1", "20359", "Hamburg", "Germany");
     private final Coordinate fromCoord = new Coordinate(53.55, 10.0);
     private final Coordinate toCoord = new Coordinate(53.56, 10.1);
     private final List<Coordinate> coordinates = List.of(fromCoord, toCoord);
-    private final Route route = new Route(coordinates);
-    private final LocationForecast forecast = buildTestForecast();
-    private final ForecastReport report = buildTestReport();
-    private final SavedRoute savedRoute = new SavedRoute("Test Tag 1", from, to, route, LocalDateTime.now());
+    private final LocationForecast locationForecast = buildTestLocationForecast();
+    private final ForecastReport forecastReport = buildTestForecastReport();
+    private final SavedRoute savedRoute = new SavedRoute("Test Tag 1", from, to, coordinates, LocalDateTime.now());
+    private final AccidentReport accidentReport = buildTestAccidentReport();
+    private final int correlatedAccidents = buildTestCorrelatedAccidents();
 
     @Test
     void shouldReturnForecastForGivenStartAndFinish() {
 
         when(savedRouteService.getRouteByAddress(
-                any(), any()))
+                any(Address.class), any(Address.class)))
                 .thenReturn(Mono.just(savedRoute));
 
-        when(weatherService.getForecast(any())).thenReturn(Mono.just(forecast));
-        when(weatherAnalysisService.summarizeToReport(any())).thenReturn(report);
-        when(accidentAnalysisService.getRoadAccidentsAssessment(any())).thenReturn(buildTestAccidentReport());
-        when(CorrelateAccidentsAndWeatherService.correlateWeatherAndAccidents(any(), any())).thenReturn(buildTestCorrelatedAccidents());
+        when(weatherService.getForecast(any(Coordinate.class))).thenReturn(Mono.just(locationForecast));
+        when(weatherAnalysisService.summarizeToReport(anyList())).thenReturn(forecastReport);
+        when(accidentAnalysisService.getRoadAccidentsAssessment(anyList())).thenReturn(accidentReport);
 
-        StepVerifier.create(routeAndWeatherService.getFullAnalysisForStartAndFinish(from, to))
-                .expectNextMatches(result
-                        -> result.route().coordinates().size() == 2
-                && result.forecast() != null
-                )
-                .verifyComplete();
+        try (MockedStatic<CorrelateAccidentsAndWeatherService> mockedStatic
+                = mockStatic(CorrelateAccidentsAndWeatherService.class)) {
+
+            mockedStatic.when(()
+                    -> CorrelateAccidentsAndWeatherService.correlateWeatherAndAccidents(
+                            any(ForecastReport.class),
+                            any(AccidentReport.class)
+                    ))
+                    .thenReturn(correlatedAccidents);
+
+            StepVerifier.create(routeAndWeatherService.getFullAnalysisForStartAndFinish(from, to))
+                    .expectNextMatches(result
+                            -> result.route().size() == 2
+                    && result.forecast() != null
+                    )
+                    .verifyComplete();
+        }
     }
 
     @Test
     void shouldReturnForecastForGivenTag() {
 
         when(savedRouteService.getRouteByTag(
-                any()))
+                any(String.class)))
                 .thenReturn(Mono.just(savedRoute));
 
-        when(weatherService.getForecast(any())).thenReturn(Mono.just(forecast));
-        when(weatherAnalysisService.summarizeToReport(any())).thenReturn(report);
-        when(accidentAnalysisService.getRoadAccidentsAssessment(any())).thenReturn(buildTestAccidentReport());
-        when(CorrelateAccidentsAndWeatherService.correlateWeatherAndAccidents(any(), any())).thenReturn(buildTestCorrelatedAccidents());
+        when(weatherService.getForecast(any(Coordinate.class))).thenReturn(Mono.just(locationForecast));
+        when(weatherAnalysisService.summarizeToReport(anyList())).thenReturn(forecastReport);
+        when(accidentAnalysisService.getRoadAccidentsAssessment(anyList())).thenReturn(buildTestAccidentReport());
 
-        StepVerifier.create(routeAndWeatherService.getRouteForecastResultForGivenTag("Test Tag 1"))
-                .expectNextMatches(result
-                        -> result.route().coordinates().size() == 2
-                && result.forecast() != null
-                )
-                .verifyComplete();
+        try (MockedStatic<CorrelateAccidentsAndWeatherService> mockedStatic
+                = mockStatic(CorrelateAccidentsAndWeatherService.class)) {
+
+            mockedStatic.when(()
+                    -> CorrelateAccidentsAndWeatherService.correlateWeatherAndAccidents(
+                            any(ForecastReport.class),
+                            any(AccidentReport.class)
+                    ))
+                    .thenReturn(correlatedAccidents);
+            StepVerifier.create(routeAndWeatherService.getRouteForecastResultForGivenTag("Test Tag 1"))
+                    .expectNextMatches(result
+                            -> result.route().size() == 2
+                    && result.forecast() != null
+                    )
+                    .verifyComplete();
+        }
     }
 
     @Test
     void shouldReturnErrorWhenRoutingServiceIsNotResponding() {
-        when(savedRouteService.getRouteByAddress(any(), any()))
+        when(savedRouteService.getRouteByAddress(any(Address.class), any(Address.class)))
                 .thenReturn(Mono.error(new RuntimeException("Error while fetching route from routing service")));
 
         StepVerifier.create(routeAndWeatherService.getFullAnalysisForStartAndFinish(from, to))
@@ -114,13 +132,13 @@ public class RouteAndWeatherServiceTest {
                 && throwable.getMessage().equals("Error while fetching route from routing service"))
                 .verify();
 
-        verify(weatherService, never()).getForecast(any());
-        verify(weatherAnalysisService, never()).summarizeToReport(any());
+        verify(weatherService, never()).getForecast(any(Coordinate.class));
+        verify(weatherAnalysisService, never()).summarizeToReport(anyList());
     }
 
     @Test
     void shouldReturnErrorWhenRouteNotFoundForGivenTag() {
-        when(savedRouteService.getRouteByTag(any()))
+        when(savedRouteService.getRouteByTag(any(String.class)))
                 .thenReturn(Mono.error(new TagNotFoundException("Route with tag NonExistingTag not found")));
 
         StepVerifier.create(routeAndWeatherService.getRouteForecastResultForGivenTag("NonExistingTag"))
@@ -128,11 +146,11 @@ public class RouteAndWeatherServiceTest {
                 && throwable.getMessage().equals("Route with tag NonExistingTag not found"))
                 .verify();
 
-        verify(weatherService, never()).getForecast(any());
-        verify(weatherAnalysisService, never()).summarizeToReport(any());
+        verify(weatherService, never()).getForecast(any(Coordinate.class));
+        verify(weatherAnalysisService, never()).summarizeToReport(anyList());
     }
 
-    private LocationForecast buildTestForecast() {
+    private LocationForecast buildTestLocationForecast() {
         return new LocationForecast(
                 new Coordinate(1.0, 10.0),
                 Arrays.asList(new HourlyForecast(
@@ -146,7 +164,7 @@ public class RouteAndWeatherServiceTest {
         );
     }
 
-    private ForecastReport buildTestReport() {
+    private ForecastReport buildTestForecastReport() {
         return new ForecastReport(
                 20.0,
                 20.0,

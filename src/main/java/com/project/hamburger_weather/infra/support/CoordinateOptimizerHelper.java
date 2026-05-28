@@ -6,27 +6,26 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 import com.project.hamburger_weather.domain.model.Coordinate;
-import com.project.hamburger_weather.domain.model.Route;
 
 @Component
-public class CoordinatesOptimizator {
+public class CoordinateOptimizerHelper {
 
     private static final double DEFAULT_THRESHOLD_KM = 1.0; // Default threshold of 1 km
 
-    public CoordinatesOptimizator() {
+    public CoordinateOptimizerHelper() {
     }
 
-    public Route deduplicate(Route route) {
-        return deduplicate(route, DEFAULT_THRESHOLD_KM);
+    public List<Coordinate> deduplicate(List<Coordinate> listOfCoordinates) {
+        return deduplicate(listOfCoordinates, DEFAULT_THRESHOLD_KM);
     }
 
-    private Route deduplicate(Route route, double thresholdKm) {
+    private List<Coordinate> deduplicate(List<Coordinate> listOfCoordinates, double thresholdKm) {
         List<Coordinate> optimizedRoute = new ArrayList<>();
         // always include the first and the last coordinate i.e. starting and finishing routing point
-        optimizedRoute.add(route.coordinates().get(0));
-        for (int i = 1; i < route.coordinates().size() - 1; i++) {
+        optimizedRoute.add(listOfCoordinates.get(0));
+        for (int i = 1; i < listOfCoordinates.size() - 1; i++) {
 
-            Coordinate coord = route.coordinates().get(i);
+            Coordinate coord = listOfCoordinates.get(i);
 
             if (optimizedRoute.stream().noneMatch(
                     c -> distanceInKm(c, coord) < thresholdKm
@@ -38,8 +37,8 @@ public class CoordinatesOptimizator {
             }
         }
 
-        optimizedRoute.add(route.coordinates().get(route.coordinates().size() - 1));
-        return new Route(optimizedRoute);
+        optimizedRoute.add(listOfCoordinates.get(listOfCoordinates.size() - 1));
+        return optimizedRoute;
     }
 
     public static double distanceInKm(Coordinate coord1, Coordinate coord2) {

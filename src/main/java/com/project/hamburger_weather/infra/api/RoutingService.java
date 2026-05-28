@@ -5,11 +5,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.project.hamburger_weather.domain.model.Coordinate;
-import com.project.hamburger_weather.domain.model.Route;
 import com.project.hamburger_weather.infra.api.mapper.RoutingServiceMapper;
 import com.project.hamburger_weather.presentation.dto.RoutingServiceDto;
 
 import reactor.core.publisher.Mono;
+import java.util.List;
 
 @Service
 public class RoutingService {
@@ -22,7 +22,7 @@ public class RoutingService {
         this.mapper = mapper;
     }
 
-    public Mono<Route> getRoute(Coordinate from, Coordinate to) {
+    public Mono<List<Coordinate>> getRoute(Coordinate from, Coordinate to) {
         return routeClient.get()
                 .uri(uriBuilder -> uriBuilder
                 .path("/driving/{startLon},{startLat};{endLon},{endLat}")

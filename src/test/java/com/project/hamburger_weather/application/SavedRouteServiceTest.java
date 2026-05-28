@@ -8,16 +8,16 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.project.hamburger_weather.infra.persistence.entity.RouteEntity;
 import com.project.hamburger_weather.infra.persistence.mapper.SavedRouteMapper;
 import com.project.hamburger_weather.infra.persistence.repository.RouteRequestRepository;
-import com.project.hamburger_weather.infra.support.CoordinatesOptimizator;
+import com.project.hamburger_weather.infra.support.CoordinateOptimizerHelper;
 import reactor.core.publisher.Mono;
 import com.project.hamburger_weather.domain.model.Coordinate;
 import com.project.hamburger_weather.domain.model.SavedRoute;
 import com.project.hamburger_weather.infra.api.GeoConverterService;
 import com.project.hamburger_weather.infra.api.RoutingService;
 import com.project.hamburger_weather.domain.model.Address;
-import com.project.hamburger_weather.domain.model.Route;
 import java.util.List;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import reactor.test.StepVerifier;
@@ -37,7 +37,7 @@ public class SavedRouteServiceTest {
     private GeoConverterService geoConverterService;
 
     @Mock
-    private CoordinatesOptimizator coordinatesOptimizator;
+    private CoordinateOptimizerHelper coordinatesOptimizer;
 
     @Mock
     private SavedRouteMapper mapper;
@@ -50,7 +50,8 @@ public class SavedRouteServiceTest {
     private final Address to = new Address("Reeperbahn", "1", "20359", "Hamburg", "Germany");
     private final Coordinate fromCoord = new Coordinate(53.55, 10.0);
     private final Coordinate toCoord = new Coordinate(53.56, 10.1);
-    private final SavedRoute savedRoute = new SavedRoute("Test Tag 1", from, to, new Route(List.of(fromCoord, toCoord)), null);
+    private final List<Coordinate> coordinates = List.of(fromCoord, toCoord);
+    private final SavedRoute savedRoute = new SavedRoute("Test Tag 1", from, to, coordinates, null);
 
     @Test
     void shouldReturnSavedRouteWhenRouteExistsInDb() {
@@ -90,15 +91,15 @@ public class SavedRouteServiceTest {
                 .thenReturn(Mono.just(toCoord));
 
         when(routingService.getRoute(any(), any()))
-                .thenReturn(Mono.just(new Route(List.of(fromCoord, toCoord))));
+                .thenReturn(Mono.just(List.of(fromCoord, toCoord)));
 
-        when(coordinatesOptimizator.deduplicate(any(Route.class)))
-                .thenReturn(new Route(List.of(fromCoord, toCoord)));
+        when(coordinatesOptimizer.deduplicate(anyList()))
+                .thenReturn(coordinates);
 
-        when(mapper.toEntity(any(), any(), any(), any(Route.class)))
+        when(mapper.toEntity(any(), any(), any(), anyList()))
                 .thenReturn(new RouteEntity());
 
-        when(repository.save(any(RouteEntity.class)))
+        when(repository.save(any()))
                 .thenReturn(Mono.just(new RouteEntity()));
 
         when(mapper.toDomain(any(RouteEntity.class)))
@@ -139,7 +140,7 @@ public class SavedRouteServiceTest {
         verify(routingService).getRoute(fromCoord, toCoord);
     }
 
-    @Test 
+    @Test
     void shouldReturnErrorWhenGeoConverterServiceIsNotResponding() {
         when(repository.existsByAddresses(
                 any(), any(), any(), any(), any(),

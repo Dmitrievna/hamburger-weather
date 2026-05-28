@@ -11,28 +11,28 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import com.project.hamburger_weather.domain.model.WmoCode;
+import com.project.hamburger_weather.domain.model.WeatherCodes;
 
 import jakarta.annotation.PostConstruct;
 
 @Service
-public class WmoCodesEvaluationService {
+public class WeatherCodesEvaluationService {
 
     private final ObjectMapper objectMapper;
     private final ResourceLoader resourceLoader;
-    private List<WmoCode> wmoCodes;
+    private List<WeatherCodes> weatherCodes;
 
-    public WmoCodesEvaluationService(ResourceLoader resourceLoader, ObjectMapper objectMapper) throws IOException {
+    public WeatherCodesEvaluationService(ResourceLoader resourceLoader, ObjectMapper objectMapper) throws IOException {
         this.resourceLoader = resourceLoader;
         this.objectMapper = objectMapper;
-        loadWmoCodes();
+        loadWeatherCodes();
     }
 
     @PostConstruct
-    private void loadWmoCodes() throws IOException {
+    private void loadWeatherCodes() throws IOException {
         Resource resource = resourceLoader.getResource("classpath:static/wmo-codes.json");
         try (InputStream inputStream = resource.getInputStream()) {
-            this.wmoCodes = objectMapper.readValue(inputStream, new TypeReference<List<WmoCode>>() {
+            this.weatherCodes = objectMapper.readValue(inputStream, new TypeReference<List<WeatherCodes>>() {
             });
         }
 
@@ -62,15 +62,15 @@ public class WmoCodesEvaluationService {
         return snowOnes.contains(code);
     }
 
-    public List<WmoCode> getWmoCodes() {
-        return wmoCodes;
+    public List<WeatherCodes> getWeatherCodes() {
+        return weatherCodes;
     }
 
     public String getDescriptionByCode(String code) {
-        return wmoCodes.stream()
-                .filter(wmo -> wmo.code().equals(code))
+        return weatherCodes.stream()
+                .filter(wc -> wc.code().equals(code))
                 .findFirst()
-                .map(WmoCode::description)
+                .map(WeatherCodes::description)
                 .orElse("Unknown code");
     }
 

@@ -1,13 +1,15 @@
 package com.project.hamburger_weather.domain.service;
 
 import java.util.List;
+
 import org.springframework.stereotype.Service;
-import com.project.hamburger_weather.domain.model.Coordinate;
-import com.project.hamburger_weather.infra.loader.AccidentDataLoader;
-import com.project.hamburger_weather.infra.support.CoordinatesOptimizator;
-import com.project.hamburger_weather.domain.model.AccidentStats;
-import com.project.hamburger_weather.domain.model.RiskLevel;
+
 import com.project.hamburger_weather.domain.model.AccidentReport;
+import com.project.hamburger_weather.domain.model.AccidentStats;
+import com.project.hamburger_weather.domain.model.Coordinate;
+import com.project.hamburger_weather.domain.model.RiskLevel;
+import com.project.hamburger_weather.infra.loader.AccidentDataLoader;
+import com.project.hamburger_weather.infra.support.CoordinateOptimizerHelper;
 
 @Service
 public class AccidentAnalysisService {
@@ -36,7 +38,7 @@ public class AccidentAnalysisService {
 
         for (Coordinate c : coord) {
             for (AccidentStats a : accidents) {
-                if (CoordinatesOptimizator.distanceInKm(c, a.coordinate()) <= RISK_RADIUS_KM) {
+                if (CoordinateOptimizerHelper.distanceInKm(c, a.coordinate()) <= RISK_RADIUS_KM) {
                     switch (a.lightCondition()) {
                         case CLEAR ->
                             clearAccidents++;

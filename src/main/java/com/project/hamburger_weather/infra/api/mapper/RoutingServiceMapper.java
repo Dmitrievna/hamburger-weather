@@ -12,19 +12,15 @@ import com.project.hamburger_weather.presentation.dto.RoutingServiceDto;
 @Component
 public class RoutingServiceMapper {
 
-    public Route toRoute(RoutingServiceDto dto) {
+    public List<Coordinate> toRoute(RoutingServiceDto dto) {
         RouteDto firstRoute = dto.routes().get(0);
 
-        List<Coordinate> coordinates
-                = firstRoute.geometry().coordinates().stream()
-                        .map(pair -> new Coordinate(
-                        pair.get(0), // lon
-                        pair.get(1) // lat
-                ))
-                        .toList();
+        return firstRoute.geometry().coordinates().stream()
+                .map(pair -> new Coordinate(
+                pair.get(0), // lon
+                pair.get(1) // lat
+        ))
+                .toList();
 
-        return new Route(
-                coordinates
-        );
     }
 }
