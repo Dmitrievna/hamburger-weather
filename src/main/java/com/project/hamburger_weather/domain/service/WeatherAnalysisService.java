@@ -7,7 +7,7 @@ import java.util.stream.Stream;
 
 import org.springframework.stereotype.Service;
 
-import com.project.hamburger_weather.domain.model.ForecastReport;
+import com.project.hamburger_weather.domain.model.WeatherReport;
 import com.project.hamburger_weather.domain.model.HourlyForecast;
 import com.project.hamburger_weather.domain.model.LocationForecast;
 
@@ -20,7 +20,7 @@ public class WeatherAnalysisService {
         this.weatherCodesEvaluationService = weatherCodesEvaluationService;
     }
 
-    public ForecastReport summarizeToReport(List<LocationForecast> locationForecast) {
+    public WeatherReport summarizeToReport(List<LocationForecast> locationForecast) {
 
         List<HourlyForecast> allHourlyForecasts = locationForecast.stream()
                 .flatMap(loc -> loc.hourlyForecasts().stream())
@@ -50,7 +50,7 @@ public class WeatherAnalysisService {
 
         boolean goodWeather = warm && !rainy && !windy && goodByCodes;
 
-        return new ForecastReport(
+        return new WeatherReport(
                 temperatureStats.getAverage(),
                 temperatureStats.getMin(),
                 temperatureStats.getMax(),

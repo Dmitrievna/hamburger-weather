@@ -38,8 +38,8 @@ public class SavedRouteMapperTest {
         SavedRoute domain = mapper.toDomain(entity);
 
         assertThat(domain.tag()).isEqualTo("home-to-work");
-        assertThat(domain.startAddress().city()).isEqualTo("Hamburg");
-        assertThat(domain.endAddress().street()).isEqualTo("Reeperbahn");
+        assertThat(domain.startAddress().getCity()).isEqualTo("Hamburg");
+        assertThat(domain.endAddress().getStreet()).isEqualTo("Reeperbahn");
         assertThat(domain.coordinates()).hasSize(1);
         assertThat(domain.coordinates().get(0).latitude()).isEqualTo(53.55);
     }

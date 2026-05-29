@@ -9,7 +9,7 @@ import com.project.hamburger_weather.domain.model.AccidentStats;
 import com.project.hamburger_weather.domain.model.Coordinate;
 import com.project.hamburger_weather.domain.model.RiskLevel;
 import com.project.hamburger_weather.infra.loader.AccidentDataLoader;
-import com.project.hamburger_weather.infra.support.CoordinateOptimizerHelper;
+import com.project.hamburger_weather.infra.support.CoordinateOptimizer;
 
 @Service
 public class AccidentAnalysisService {
@@ -38,7 +38,7 @@ public class AccidentAnalysisService {
 
         for (Coordinate c : coord) {
             for (AccidentStats a : accidents) {
-                if (CoordinateOptimizerHelper.distanceInKm(c, a.coordinate()) <= RISK_RADIUS_KM) {
+                if (CoordinateOptimizer.distanceInKm(c, a.coordinate()) <= RISK_RADIUS_KM) {
                     switch (a.lightCondition()) {
                         case CLEAR ->
                             clearAccidents++;

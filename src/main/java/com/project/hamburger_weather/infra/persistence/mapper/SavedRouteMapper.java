@@ -9,6 +9,7 @@ import java.util.List;
 import com.project.hamburger_weather.domain.model.Coordinate;
 import java.time.LocalDateTime;
 import com.google.gson.reflect.TypeToken;
+import org.springframework.lang.NonNull;
 
 @Component
 public class SavedRouteMapper {
@@ -35,22 +36,21 @@ public class SavedRouteMapper {
         );
     }
 
+    @NonNull
     public RouteEntity toEntity(String tag, Address from, Address to, List<Coordinate> route) {
         String coordinatesJson = new Gson().toJson(route);
-        System.out.println("Coordinates JSON: " + coordinatesJson); // add this
-        System.out.println("Coordinates type: " + coordinatesJson.getClass().getName());
         return RouteEntity.builder()
                 .tag(tag)
-                .startStreet(from.street())
-                .startHouseNumber(from.num())
-                .startPlz(from.plz())
-                .startCity(from.city())
-                .startCountry(from.country())
-                .endStreet(to.street())
-                .endHouseNumber(to.num())
-                .endPlz(to.plz())
-                .endCity(to.city())
-                .endCountry(to.country())
+                .startStreet(from.getStreet())
+                .startHouseNumber(from.getHouseNumber())
+                .startPlz(from.getPlz())
+                .startCity(from.getCity())
+                .startCountry(from.getCountry())
+                .endStreet(to.getStreet())
+                .endHouseNumber(to.getHouseNumber())
+                .endPlz(to.getPlz())
+                .endCity(to.getCity())
+                .endCountry(to.getCountry())
                 .coordinates(new Gson().toJson(route))
                 .requestedAt(LocalDateTime.now())
                 .build();

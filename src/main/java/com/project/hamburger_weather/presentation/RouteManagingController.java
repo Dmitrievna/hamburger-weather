@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.project.hamburger_weather.application.SavedRouteService;
+import com.project.hamburger_weather.application.RouteResolutionService;
 import com.project.hamburger_weather.presentation.dto.RouteResponseDto;
 
 import jakarta.validation.Valid;
@@ -16,16 +16,16 @@ import reactor.core.publisher.Mono;
 @RestController
 @RequestMapping("/v1/routes")
 @Validated
-public class SavedRouteController {
+public class RouteManagingController {
 
-    private final SavedRouteService savedRouteService;
+    private final RouteResolutionService savedRouteService;
 
-    public SavedRouteController(SavedRouteService savedRouteService) {
+    public RouteManagingController(RouteResolutionService savedRouteService) {
         this.savedRouteService = savedRouteService;
     }
 
-    //get all saved routes
-    //get a specific route by id
+    //make here possible to see the route and also to change the tag and only tag
+    /*
     @GetMapping("/{tag}")
     public Mono<ResponseEntity<RouteResponseDto>> getRouteByTag(@RequestParam @Valid String tag) {
         // Implementation to retrieve a route by its Tag
@@ -41,6 +41,5 @@ public class SavedRouteController {
         )))
                 .defaultIfEmpty(ResponseEntity.notFound().build());
 
-    }
-
+    } */
 }

@@ -25,7 +25,7 @@ import static org.mockito.Mockito.never;
 import com.project.hamburger_weather.exception.TagNotFoundException;
 
 @ExtendWith(MockitoExtension.class)
-public class SavedRouteServiceTest {
+public class RouteManagingServiceTest {
 
     @Mock
     private RouteRequestRepository repository;
@@ -43,7 +43,7 @@ public class SavedRouteServiceTest {
     private SavedRouteMapper mapper;
 
     @InjectMocks
-    private SavedRouteService savedRouteService;
+    private RouteManagingService savedRouteService;
 
     // test data
     private final Address from = new Address("Musterstraße", "1", "20095", "Hamburg", "Germany");

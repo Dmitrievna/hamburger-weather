@@ -1,6 +1,6 @@
 package com.project.hamburger_weather.domain.model;
 
-public record ForecastReport(
+public record WeatherReport(
         double avgTemperature,
         double minTemperature,
         double maxTemperature,

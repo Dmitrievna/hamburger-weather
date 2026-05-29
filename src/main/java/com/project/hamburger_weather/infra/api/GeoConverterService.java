@@ -28,7 +28,7 @@ public class GeoConverterService {
                 .uri(uriBuilder -> uriBuilder
                 .path("/search")
                 .queryParam("q", "{street} {num} {PLZ} {city} {country}")
-                .build(address.street(), address.num(), address.plz(), address.city(), address.country()))
+                .build(address.getStreet(), address.getNum(), address.getPlz(), address.getCity(), address.getCountry()))
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<List<GeoConverterServiceDto>>() {
                 })

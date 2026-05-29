@@ -3,23 +3,17 @@ package com.project.hamburger_weather.infra.support;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.stereotype.Component;
-
 import com.project.hamburger_weather.domain.model.Coordinate;
 
-@Component
-public class CoordinateOptimizerHelper {
+public class CoordinateOptimizer {
 
     private static final double DEFAULT_THRESHOLD_KM = 1.0; // Default threshold of 1 km
 
-    public CoordinateOptimizerHelper() {
-    }
-
-    public List<Coordinate> deduplicate(List<Coordinate> listOfCoordinates) {
+    public static List<Coordinate> deduplicate(List<Coordinate> listOfCoordinates) {
         return deduplicate(listOfCoordinates, DEFAULT_THRESHOLD_KM);
     }
 
-    private List<Coordinate> deduplicate(List<Coordinate> listOfCoordinates, double thresholdKm) {
+    private static List<Coordinate> deduplicate(List<Coordinate> listOfCoordinates, double thresholdKm) {
         List<Coordinate> optimizedRoute = new ArrayList<>();
         // always include the first and the last coordinate i.e. starting and finishing routing point
         optimizedRoute.add(listOfCoordinates.get(0));

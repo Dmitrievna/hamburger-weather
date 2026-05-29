@@ -10,11 +10,11 @@ public record AddressDto(
         String street,
         @NotBlank(message = "House number is required")
         String num,
+        @NotBlank(message = "City is required")
+        String city,
         @NotBlank(message = "Postal code is required")
         @Pattern(regexp = "\\d{5}", message = "Postal code must be 5 digits")
         String plz,
-        @NotBlank(message = "City is required")
-        String city,
         @NotBlank(message = "Country is required")
         String country
         ) {

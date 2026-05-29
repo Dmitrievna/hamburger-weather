@@ -9,7 +9,7 @@ import com.project.hamburger_weather.domain.model.LightCondition;
 @Service
 public class CorrelateAccidentsAndWeatherService {
 
-    public static int correlateWeatherAndAccidents(ForecastReport forecastReport, AccidentReport accidentReport) {
+    public int correlateWeatherAndAccidents(ForecastReport forecastReport, AccidentReport accidentReport) {
         // correlate weather and accidents for a given route
 
         int weatherRelatedAccidents = 0;

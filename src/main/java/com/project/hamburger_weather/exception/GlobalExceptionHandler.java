@@ -62,6 +62,22 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err);
     }
 
+    @ExceptionHandler(InvalidRouteException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidRoute(
+            InvalidRouteException ex) {
+        return ResponseEntity
+                .badRequest()
+                .body(new ErrorResponse(LocalDateTime.now(), "Invalid route", List.of(ex.getMessage())));
+    }
+
+    @ExceptionHandler(InvalidAddressException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidAddress(
+            InvalidAddressException ex) {
+        return ResponseEntity
+                .badRequest()
+                .body(new ErrorResponse(LocalDateTime.now(), "Invalid address", List.of(ex.getMessage())));
+    }
+
     @ExceptionHandler(WebExchangeBindException.class)
     public ResponseEntity<ErrorResponse> handleValidationErrors(
             WebExchangeBindException ex) {
@@ -71,9 +87,6 @@ public class GlobalExceptionHandler {
                 .stream()
                 .map(e -> e.getField() + ": " + e.getDefaultMessage())
                 .toList();
-
-        //todo remove        
-        System.out.println(" ERROR MESSAGES " + details);
 
         ErrorResponse err = new ErrorResponse(
                 LocalDateTime.now(),
@@ -85,4 +98,5 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.BAD_REQUEST)
                 .body(err);
     }
+
 }
