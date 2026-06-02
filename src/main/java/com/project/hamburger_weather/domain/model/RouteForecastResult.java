@@ -4,7 +4,7 @@ import java.util.List;
 
 public record RouteForecastResult(
         List<Coordinate> route,
-        ForecastReport forecast,
+        WeatherReport forecast,
         int correlatedAccidents,
         int overallAccidents,
         RiskLevel riskLevel

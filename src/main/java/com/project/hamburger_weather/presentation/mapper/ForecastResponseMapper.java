@@ -2,14 +2,11 @@ package com.project.hamburger_weather.presentation.mapper;
 
 import org.springframework.stereotype.Component;
 
-import com.project.hamburger_weather.domain.model.ForecastReport;
-
-import com.project.hamburger_weather.domain.model.Route;
 import com.project.hamburger_weather.domain.model.RouteForecastResult;
 import com.project.hamburger_weather.presentation.dto.ForecastResponseDto;
 
 @Component
-public class WeatherReportMapper {
+public class ForecastResponseMapper {
 
     public ForecastResponseDto toForecastResponseDto(RouteForecastResult routeForecastResult) {
         return new ForecastResponseDto(

@@ -20,15 +20,15 @@ public class SavedRouteMapper {
                 new Address(
                         entity.getStartStreet(),
                         entity.getStartHouseNumber(),
-                        entity.getStartPlz(),
                         entity.getStartCity(),
+                        entity.getStartPlz(),
                         entity.getStartCountry()
                 ),
                 new Address(
                         entity.getEndStreet(),
                         entity.getEndHouseNumber(),
-                        entity.getEndPlz(),
                         entity.getEndCity(),
+                        entity.getEndPlz(),
                         entity.getEndCountry()
                 ),
                 parseCoordinates(entity.getCoordinates()),
@@ -39,21 +39,21 @@ public class SavedRouteMapper {
     @NonNull
     public RouteEntity toEntity(String tag, Address from, Address to, List<Coordinate> route) {
         String coordinatesJson = new Gson().toJson(route);
-        return RouteEntity.builder()
-                .tag(tag)
-                .startStreet(from.getStreet())
-                .startHouseNumber(from.getHouseNumber())
-                .startPlz(from.getPlz())
-                .startCity(from.getCity())
-                .startCountry(from.getCountry())
-                .endStreet(to.getStreet())
-                .endHouseNumber(to.getHouseNumber())
-                .endPlz(to.getPlz())
-                .endCity(to.getCity())
-                .endCountry(to.getCountry())
-                .coordinates(new Gson().toJson(route))
-                .requestedAt(LocalDateTime.now())
-                .build();
+        RouteEntity entity = new RouteEntity();
+        entity.setTag(tag);
+        entity.setStartStreet(from.getStreet());
+        entity.setStartHouseNumber(from.getNum());
+        entity.setStartPlz(from.getPlz());
+        entity.setStartCity(from.getCity());
+        entity.setStartCountry(from.getCountry());
+        entity.setEndStreet(to.getStreet());
+        entity.setEndHouseNumber(to.getNum());
+        entity.setEndPlz(to.getPlz());
+        entity.setEndCity(to.getCity());
+        entity.setEndCountry(to.getCountry());
+        entity.setCoordinates(coordinatesJson);
+        entity.setRequestedAt(LocalDateTime.now());
+        return entity;
     }
 
     private List<Coordinate> parseCoordinates(String coordinatesJson) {

@@ -70,14 +70,6 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponse(LocalDateTime.now(), "Invalid route", List.of(ex.getMessage())));
     }
 
-    @ExceptionHandler(InvalidAddressException.class)
-    public ResponseEntity<ErrorResponse> handleInvalidAddress(
-            InvalidAddressException ex) {
-        return ResponseEntity
-                .badRequest()
-                .body(new ErrorResponse(LocalDateTime.now(), "Invalid address", List.of(ex.getMessage())));
-    }
-
     @ExceptionHandler(WebExchangeBindException.class)
     public ResponseEntity<ErrorResponse> handleValidationErrors(
             WebExchangeBindException ex) {

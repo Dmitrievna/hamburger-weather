@@ -8,6 +8,7 @@ import com.project.hamburger_weather.infra.persistence.repository.RouteRequestRe
 import com.project.hamburger_weather.infra.persistence.mapper.SavedRouteMapper;
 import reactor.core.publisher.Mono;
 
+// service only responsible for any operations regarding route retrival from a db
 @Service
 public class RouteResolutionService {
 
@@ -32,9 +33,10 @@ public class RouteResolutionService {
         if (tag != null && !tag.isBlank()) {
             return routeRequestRepository.findByTag(tag)
                     .map(mapper::toDomain)
-                    .switchIfEmpty(getRouteByAddress(from, to));
+                    .switchIfEmpty(Mono.defer(() -> getRouteByAddress(from, to)));
         }
         return getRouteByAddress(from, to);
     }
 
+    // add change route's tag if all 
 }

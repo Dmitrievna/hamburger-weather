@@ -3,13 +3,13 @@ package com.project.hamburger_weather.domain.service;
 import java.time.LocalDateTime;
 import org.springframework.stereotype.Service;
 import com.project.hamburger_weather.domain.model.AccidentReport;
-import com.project.hamburger_weather.domain.model.ForecastReport;
+import com.project.hamburger_weather.domain.model.WeatherReport;
 import com.project.hamburger_weather.domain.model.LightCondition;
 
 @Service
 public class CorrelateAccidentsAndWeatherService {
 
-    public int correlateWeatherAndAccidents(ForecastReport forecastReport, AccidentReport accidentReport) {
+    public int correlateWeatherAndAccidents(WeatherReport forecastReport, AccidentReport accidentReport) {
         // correlate weather and accidents for a given route
 
         int weatherRelatedAccidents = 0;

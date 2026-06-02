@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 import com.project.hamburger_weather.domain.model.Coordinate;
-import com.project.hamburger_weather.domain.model.Route;
 import com.project.hamburger_weather.presentation.dto.RouteDto;
 import com.project.hamburger_weather.presentation.dto.RoutingServiceDto;
 

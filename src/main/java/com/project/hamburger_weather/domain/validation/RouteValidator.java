@@ -1,4 +1,4 @@
-package com.project.hamburger_weather.domain.service;
+package com.project.hamburger_weather.domain.validation;
 
 import com.project.hamburger_weather.domain.model.Address;
 import com.project.hamburger_weather.exception.InvalidRouteException;

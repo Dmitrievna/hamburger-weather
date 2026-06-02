@@ -43,7 +43,6 @@ public class WeatherAndAccidentService {
         this.weatherService = weatherService;
         this.weatherAnalysisService = weatherAnalysisService;
         this.routeResolutionService = routeResolutionService;
-
         this.routingService = routingService;
         this.geoConverterService = geoConverterService;
         this.accidentAnalysisService = accidentAnalysisService;
