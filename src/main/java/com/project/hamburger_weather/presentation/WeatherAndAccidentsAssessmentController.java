@@ -39,7 +39,7 @@ public class WeatherAndAccidentsAssessmentController {
 
     @Operation(
             summary = "Get route forecast",
-            description = "Calculates a cycling route between two addresses and returns route, weather forecast and accident risk assessment"
+            description = "Calculates a cycling route between two addresses and returns route, weather forecast and accident risk assessment. For now you can give any string or just null as a tag."
     )
     @ApiResponse(responseCode = "200", description = "Forecast successfully calculated")
     @ApiResponse(responseCode = "400", description = "Invalid address format")
