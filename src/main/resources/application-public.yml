@@ -41,3 +41,8 @@ springdoc:
     path: /swagger-ui.html
     display-request-duration: true
     try-it-out-enabled: true
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
