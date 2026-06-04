@@ -9,37 +9,109 @@ import java.util.ArrayList;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import com.project.hamburger_weather.domain.model.AccidentStats;
 import org.springframework.core.io.Resource;
 import java.util.Arrays;
 import com.project.hamburger_weather.domain.model.RoadCondition;
 import com.project.hamburger_weather.domain.model.LightCondition;
+import java.util.Map;
+import java.util.HashMap;
 
 @Component
 public class AccidentDataLoader {
 
-    private List<AccidentStats> accidentStats = new ArrayList<>();
+    //private List<AccidentStats> accidentStats = new ArrayList<>();
+    private Map<String, List<AccidentStats>> spatialIndex = new HashMap<>();
+
     List<String> streetConditionNames = List.of("IstStrassenzustand", "STRZUSTAND");
 
+    //@PostConstruct
+    //public void loadAccidentData() {
+    //    try {
+    //        PathMatchingResourcePatternResolver resolver
+    //                = new PathMatchingResourcePatternResolver();
+    //        Resource[] resources = resolver.getResources(
+    //                "classpath:data/**/*.csv"
+    //        );
+    //
+    //        accidentStats = Arrays.stream(resources)
+    //                .flatMap(resource -> parseFile(resource).stream())
+    //                .toList();
+    //
+    //    } catch (IOException e) {
+    //        throw new RuntimeException("Failed to load accident data", e);
+    //    }
+    //} 
     @PostConstruct
-    public void loadAccidentData() {
-        try {
-            PathMatchingResourcePatternResolver resolver
-                    = new PathMatchingResourcePatternResolver();
-            Resource[] resources = resolver.getResources(
-                    "classpath:data/**/*.csv"
-            );
+    public void load() {
 
-            accidentStats = Arrays.stream(resources)
-                    .flatMap(resource -> parseFile(resource).stream())
-                    .toList();
+        PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+
+        try {
+
+            Resource[] resources = resolver.getResources("classpath:data/**/*.csv");
+
+            Map<String, List<AccidentStats>> index = new HashMap<>();
+
+            for (Resource res : resources) {
+
+                System.out.println("Loading: " + res.getFilename());
+                processFileIntoIndex(res, index);
+                System.gc(); // force garbage collection
+
+            }
+
+            this.spatialIndex = index;
+            // noch checken
+            long total = index.values().stream().mapToLong(List::size).sum();
+            System.out.println("Total loaded records into accident statistics: " + total);
 
         } catch (IOException e) {
             throw new RuntimeException("Failed to load accident data", e);
         }
     }
 
-    private List<AccidentStats> parseFile(Resource resource) {
+    // load only nearby accidents to memory when requested
+    public List<AccidentStats> findNearby(Double lat, Double lon, Double radiusKm) {
+        // calculate which cell to choose
+        int cells = (int) Math.ceil(radiusKm / 1.0); // 1km cell size
+        List<AccidentStats> nearby = new ArrayList<>();
+
+        for (int dLat = -cells; dLat <= cells; dLat++) {
+            for (int dLon = -cells; dLon <= cells; dLon++) {
+                String key = Math.round(lat * 100 + dLat) + ":"
+                        + Math.round(lon * 100 + dLon);
+                List<AccidentStats> cell = spatialIndex.get(key);
+                if (cell != null) {
+                    nearby.addAll(cell);
+                }
+            }
+        }
+
+        return nearby;
+    }
+
+    private void processFileIntoIndex(Resource resource, Map<String, List<AccidentStats>> index) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.getInputStream()))) {
+            List<String> columns = parseFirstLine(reader.readLine());
+
+            reader.lines()
+                    .skip(1)
+                    .forEach(line -> {
+                        AccidentStats stats = parseLine(line, columns);
+                        if (stats != null) {
+                            String key = spatialKey(stats.coordinate().latitude(), stats.coordinate().longitude());
+                            index.computeIfAbsent(key, k -> new ArrayList<>()).add(stats);
+                        }
+                    });
+
+        } catch (IOException e) {
+            System.err.println("Failed to load: " + resource.getFilename());
+        }
+    }
+
+    /*private List<AccidentStats> parseFile(Resource resource) {
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.getInputStream()))) {
 
@@ -57,8 +129,7 @@ public class AccidentDataLoader {
             System.err.println("Failed to load file: " + resource.getFilename());
             return List.of();
         }
-    }
-
+    } */
     private AccidentStats parseLine(String line, List<String> columns) {
         try {
             String[] parts = line.split(";");
@@ -99,6 +170,10 @@ public class AccidentDataLoader {
         return null;
     }
 
+    private String spatialKey(double lat, double lon) {
+        return Math.round(lat * 100) + ":" + Math.round(lon * 100);
+    }
+
     private RoadCondition mapRoadCondition(String value) {
         return switch (value) {
             case "1" ->
@@ -119,9 +194,5 @@ public class AccidentDataLoader {
             default ->
                 LightCondition.CLEAR;
         };
-    }
-
-    public List<AccidentStats> getAccidentStats() {
-        return accidentStats;
     }
 }

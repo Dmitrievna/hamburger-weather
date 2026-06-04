@@ -38,10 +38,12 @@ public class GeoConverterService {
                     }
 
                     GeoConverterServiceDto first = results.get(0);
+
                     return new Coordinate(
                             Double.valueOf(first.lon()),
                             Double.valueOf(first.lat())
                     );
+
                 })
                 .onErrorMap(e -> new RuntimeException("Error while fetching coordinates from geocoding service", e));
     }
