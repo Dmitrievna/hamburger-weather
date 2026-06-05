@@ -22,7 +22,7 @@ import reactor.core.publisher.Mono;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/v1/weather")
+@RequestMapping("/v1/route-weather")
 @Validated
 @Tag(name = "Route & Weather", description = "Get weather forecast and safety assessment for a cycling route")
 public class WeatherAndAccidentsAssessmentController {
@@ -44,7 +44,7 @@ public class WeatherAndAccidentsAssessmentController {
     @ApiResponse(responseCode = "200", description = "Forecast successfully calculated")
     @ApiResponse(responseCode = "400", description = "Invalid address format")
     @ApiResponse(responseCode = "503", description = "External API unavailable")
-    @PostMapping("/forecast-based-on-route")
+    @PostMapping("/forecast")
     public Mono<ResponseEntity<ForecastResponseDto>> requestRouteAndWeather(@RequestBody @Valid ForecastRequestDto request) {
         Address from = addressMapper.toDomain(request.startAddress());
         Address to = addressMapper.toDomain(request.endAddress());
